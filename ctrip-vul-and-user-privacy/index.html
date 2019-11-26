@@ -1,0 +1,450 @@
+
+<!DOCTYPE html>
+<html lang="">
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#202020">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+  
+  
+    <meta name="keywords" content="漏洞,wooyun,信用卡安全,携程支付日志泄漏,用户隐私,">
+  
+
+  
+    <meta name="description" content="Fooying&#39;s Blog">
+  
+  
+  
+  <link rel="icon" type="image/x-icon" href="/images/footer-logo.png">
+  
+  <title>谈谈携程支付日志泄漏与用户隐私 [ Fooying ]</title>
+  
+    <!-- stylesheets list from config.yml -->
+    
+      <link rel="stylesheet" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css">
+    
+      <link rel="stylesheet" href="/css/xoxo.css">
+    
+  
+</head>
+
+
+<body>
+  <div class="nav-container">
+    <nav class="home-menu pure-menu pure-menu-horizontal">
+  <a class="pure-menu-heading" href="/">
+    
+    <span class="title" style="text-transform:none">Fooying</span>
+  </a>
+
+  <ul class="pure-menu-list clearfix">
+      
+          
+            
+              <li class="pure-menu-item"><a href="/" class="pure-menu-link">首页</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
+            
+              <a href="#" id="post" class="pure-menu-link">文章</a>
+              <ul class="pure-menu-children">
+              
+                  
+                    <li class="pure-menu-item"><a href="/categories" style="color:#202020;" class="pure-menu-link">分类</a></li>
+                  
+              
+                  
+                    <li class="pure-menu-item"><a href="/archives" style="color:#202020;" class="pure-menu-link">归档</a></li>
+                  
+              
+                  
+                    <li class="pure-menu-item"><a href="/tags" style="color:#202020;" class="pure-menu-link">标签</a></li>
+                  
+              
+              </ul>
+            </li>
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/paper" class="pure-menu-link">Papers</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/project" class="pure-menu-link">项目</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/activity" class="pure-menu-link">动态</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/search" class="pure-menu-link">搜索</a></li>
+            
+          
+      
+  </ul>
+   
+</nav>
+
+  </div>
+
+  <div class="container" id="content-outer">
+    <div class="inner" id="content-inner">
+      <div class="post-container">
+  <article class="post" id="post">
+    <header class="post-header text-center">
+      <h1 class="title">
+        谈谈携程支付日志泄漏与用户隐私
+      </h1>
+      <span>
+        
+        <time class="time" datetime="2014-03-24T12:59:04.000Z">
+        2014-03-24
+      </time>
+        
+      </span>
+      <span class="slash">/</span>
+      <span class="post-meta">
+      <span class="post-tags">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/wooyun/">wooyun</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/信用卡安全/">信用卡安全</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/携程支付日志泄漏/">携程支付日志泄漏</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/漏洞/">漏洞</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/用户隐私/">用户隐私</a></li></ul>
+      </span>
+    </span>
+      <span class="slash">/</span>
+      <span class="read">
+      <span id="busuanzi_value_page_pv"></span> 点击
+    </span>
+      <span class="slash">/</span>
+      <span class="read">阅读耗时 15 分钟</span>
+    </header>
+
+    <div class="post-content">
+      <h3 id="微博上的漏洞"><a class="markdownIt-Anchor" href="#微博上的漏洞"></a> 微博上的漏洞</h3>
+<p>我比较喜欢经常去微博逛逛，因为经常能在微博上看到很多最新的消息和好的学习资料，刚在前一篇文章写完发布出去，习惯性的逛着微博，就看到了关于携程支付日志漏洞的微博。</p>
+<p><img src="/images/post/ctrip-vul-and-user-privacy/a3acb6f93a005ae67c5fdaa7313eb369_hd.jpg" alt></p>
+<p>点进wooyun链接</p>
+<p><a href="http://www.wooyun.org/bugs/wooyun-2014-054302#0-tsina-1-14334-397232819ff9a47a7b7e80a40613cfe1" target="_blank" rel="noopener">http://www.wooyun.org/bugs/wooyun-2014-054302#0-tsina-1-14334-397232819ff9a47a7b7e80a40613cfe1</a>），可以看到漏洞的简介。大概的意思是说携程支付接口开启了调试，所有向银行验证信用卡信息的数据包保存在了服务器。另外又因为支付日志存储的服务器存在目录遍历漏洞，于是日志就可以被遍历。根据漏洞提交者的说明，而日志里可以获取到（以下复制自漏洞简介）：</p>
+<a id="more"></a>
+<blockquote>
+<p>持卡人姓名<br>
+持卡人身份证<br>
+所持银行卡类别（比如，招商银行信用卡、中国银行信用卡）<br>
+所持银行卡卡号 所持银行卡CVV码 所持银行卡6位Bin(用于支付的6位数字)</p>
+</blockquote>
+<p>在漏洞信息的下方有这样一个被置顶评论，发了一个文章的链接<a href="http://finance.china.com.cn/industry/company/20140110/2111174.shtml" target="_blank" rel="noopener">携程网被疑储存用户信用卡信息 存在泄露风险</a></p>
+<p>在文章发布的时候，携程官网已做回复：</p>
+<p><img src="/images/post/ctrip-vul-and-user-privacy/ff49b8c2269cd2dce6ce1752d7ebfe8c_hd.jpg" alt></p>
+<p>为什么要保存用户信用卡信息？这是一个值得关注的问题，而且早在1月份的时候就已经有暴露的端倪，却没有去处理。官方的回复明显不能让大家满意。让我们静待事情的发展。</p>
+<h3 id="泄漏信息解读"><a class="markdownIt-Anchor" href="#泄漏信息解读"></a> 泄漏信息解读</h3>
+<p>那么携程这次泄漏的信用卡信息又有什么用呢？</p>
+<p>我们先来看看泄漏的这些信用卡的信息：</p>
+<blockquote>
+<p>持卡人姓名<br>
+持卡人身份证<br>
+所持银行卡类别（比如，招商银行信用卡、中国银行信用卡）<br>
+所持银行卡卡号 所持银行卡CVV码 所持银行卡6位Bin(用于支付的6位数字)</p>
+</blockquote>
+<p>前四者就不用多说了，相信大家一看就知道。</p>
+<p>信用卡BIN，指的是发卡行识别码，英文全称是 Bank Identification Number，缩写为 BIN，比如工行的就是62122。</p>
+<p>那么什么是CVV码?来看下百度百科的解释：<a href="http://baike.baidu.com/view/2324253.htm" target="_blank" rel="noopener">http://baike.baidu.com/view/2324253.htm</a></p>
+<p>CVV全称是Card Verification Value，翻译过来就是卡验证值。看到验证这两个字，我想大家就应该理解它的重要性了。</p>
+<p>简单点说，就是如果知道你的卡号、和CVV码，就大部分情况下就可以直接付款了。</p>
+<p>看几篇文章:</p>
+<ul>
+<li><a href="http://money.365jia.cn/news/2013-04-23/6C96F952B46FF75D.html" target="_blank" rel="noopener">芜湖市民几分钟被盗刷2万 信用卡cvv码不要轻易泄露__万家热线</a></li>
+<li><a href="http://tv.sohu.com/20130420/n373381743.shtml" target="_blank" rel="noopener">信用卡CVV码泄露易遭盗刷</a></li>
+<li><a href="http://dalian.dlxww.com/content/2013-04/17/content_680513.htm" target="_blank" rel="noopener">信用卡的第二密码——cvv码 你知道吗？</a></li>
+<li><a href="http://www.51credit.com/creditcard/hangye/guonei/42521.shtml" target="_blank" rel="noopener">信用卡密码成浮云 CVV码是最后保障</a></li>
+</ul>
+<p>发了这么多文章，就是想告诉大家CVV码的重要性。</p>
+<p>所以大家可以想象，这次泄漏出来的信息意味着什么！意味着如果你在携程用信用卡消费过，如果已经有黑客把日志爬走了，那么他可以用日志里的那些信息直接让你替他付款。</p>
+<p>除了信用卡可能被刷，大家可以想想信用卡的其他作用，拿着你的姓名、身份证、信用卡信息可以做的坏事多了去了。</p>
+<p>当然，大家也没必要恐慌，可以继续关注事态发展，以上的情况都是在你的信用卡信息已经被爬取的前提下，只是想跟大家说明泄漏的信息的重要性，大家静待官方的回复。</p>
+<h3 id="历史隐私事件"><a class="markdownIt-Anchor" href="#历史隐私事件"></a> 历史隐私事件</h3>
+<p>何谓隐私？百度百科是这样解释的:“隐私是一种与公共利益、群体利益无关，当事人不愿他人知道或他人不便知道的个人信息，当事人不愿他人干涉或他人不便干涉的个人私事，以及当事人不愿他人侵入或他人不便侵入的个人领域。”</p>
+<p>今年以来，去年到今年来发生了挺多的隐私事件：</p>
+<ol>
+<li>360上传用户隐私</li>
+<li>棱镜事件</li>
+<li>搜狗输入法隐私事件</li>
+<li>央视曝光高鸿股份软件侵犯隐私</li>
+<li>微信视频“泄漏”</li>
+<li>支付宝信息泄露 …</li>
+</ol>
+<p>先不论这些事件是否真实，但越来越多的关于用户隐私的事情被大众所关注</p>
+<p>这次携程的事件如果确认，那么也是一次隐私事件，而这个隐私还涉及到了信用卡，事关金钱，我想大家还更为关注。</p>
+<p>像这次的事件，似乎目前也没有其他办法，大家可以选择先冻结信用卡，使用新卡。</p>
+<p>另外，大家也可以关注这个问题，看看有没有更好的处理办法 <a href="http://www.zhihu.com/question/23131107" target="_blank" rel="noopener">携程信用卡信息被泄露，除了更换信用卡还有什么别的好方法处理么？http://www.zhihu.com/question/23131107</a></p>
+<h3 id="如何保障信用卡信息等隐私安全"><a class="markdownIt-Anchor" href="#如何保障信用卡信息等隐私安全"></a> 如何保障信用卡信息等隐私安全</h3>
+<p>当事件发生的时候，如何去保护自己的隐私呢？ 在互联网厂商方面，不应该保存用户的如信用卡的这些隐私资料，当在必要的情况下，应该对用户的隐私安全负责。这次，携程作为落水鸭该被众人嫌弃了，而其他的互联网厂商估计也在各种检查。</p>
+<p>而作为用户或者作为普通网民，我们又何如去保护自己的隐私？信用卡安全？</p>
+<p>隐私方面的一些安全处理我就不多说，大家可以看cos的文章：<a href="http://mp.weixin.qq.com/s?__biz=MzA3NTEzMTUwNA==&amp;mid=200022496&amp;idx=1&amp;sn=11c024fb93fdd2a88bf504c6ff40963a#rd" target="_blank" rel="noopener">用户隐私早沦陷了（二）</a></p>
+<p>今天主要跟大家讲讲如何保证信用卡的使用安全</p>
+<blockquote>
+<p>1、任何信用卡，信用卡背面三位码一定要保护后，有必要的话可以用贴纸盖住或者直接刮掉（当然前提是自己记住）。<br>
+2、不要向任何人、在任何场所透露信用卡的信息，包括姓名、卡号、有效期等。<br>
+3、拿到新卡的时候在背面签名，使用签名消费而不是密码支付消费。一般而言，在信用卡没有密码的前提下，主要由商家比对签名来查核持卡人身份，在签名存在明显差异的情况下，商家无疑要对盗刷得逞承担主要责任。<br>
+4、在出现卡丢失或者可能导致盗刷的情况下，如这次事件，应该第一时间挂失或者冻结信用卡。<br>
+5、如果可以，可以开通信用卡的消费提示，这样在被盗刷的情况可以第一时间得知，也可以第一时间联系银行处理。<br>
+6、不要在网吧等公共电脑使用网银进行网上交易。<br>
+7、在刷卡的时候如果是密码支付，注意遮挡，注意查看金额，另外不要随便丢弃刷卡的小票。</p>
+</blockquote>
+<p>有许多平时在生活中使用信用卡的注意事项，大家都需要注意，主要还是需要养成一定的安全意识。</p>
+<h3 id="如何消除自己在网上的痕迹"><a class="markdownIt-Anchor" href="#如何消除自己在网上的痕迹"></a> 如何消除自己在网上的痕迹</h3>
+<p>看到隐私的各种问题，应该就有同学想着要把自己在网上的隐私、资料、痕迹之类的删除掉了。恭喜这位同学，已经有人想到了你同样的问题，并且已经在知乎上提问过了。</p>
+<p>大家先去看看蘑菇发的文章：<a href="http://mp.weixin.qq.com/s?__biz=MzA3NDMwODAyNg==&amp;mid=200240216&amp;idx=1&amp;sn=da7d6e275d9cb849231934153cf093c3#rd" target="_blank" rel="noopener">http://mp.weixin.qq.com/s?__biz=MzA3NDMwODAyNg==&amp;mid=200240216&amp;idx=1&amp;sn=da7d6e275d9cb849231934153cf093c3#rd</a>（如何完全抹除自己在网上的痕迹）</p>
+<p>然后说说自己的想法，说实在的，完全抹除痕迹，基本是不可能，除非你是个刚接触电脑的，就注册了那么一两个帐号啥的，才有那可能性</p>
+<p>为什么会有社工？为什么会有搜索引擎？…想想你就明白了</p>
+<p>然后想着抹除痕迹，倒不如想着用垃圾信息去覆盖痕迹（这里的覆盖可不是update），把那些你觉得有影响的信息覆盖沉寂。把互联网想成一个大缸，你的那些信息及痕迹是一层沙，那么就继续往里倒其他的沙，那么想找到底部的沙就得费些功夫了。</p>
+<h3 id="结语"><a class="markdownIt-Anchor" href="#结语"></a> 结语</h3>
+<p>当用户隐私已经越来越受普通网民跟大众关注的时候，我想厂商应该更多的去想想如何保护用户的隐私而不是如何赚钱了。这次的携程事件，给广大互联网厂商敲响一个警钟。同时大家在平时生活、上网之中也应该加强对自己隐私的保护，特别是牵扯到个人金钱利益的，我想不用我多说大家也知道重要性。</p>
+<p>截止到23号，官方做了一个声明</p>
+<p><img src="/images/post/ctrip-vul-and-user-privacy/7ac9cab2c6980707cfded2706068ccdb_hd.jpg" alt></p>
+
+    </div>
+
+  </article>
+  <div class="toc-container">
+    
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#微博上的漏洞"><span class="toc-text"> 微博上的漏洞</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#泄漏信息解读"><span class="toc-text"> 泄漏信息解读</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#历史隐私事件"><span class="toc-text"> 历史隐私事件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如何保障信用卡信息等隐私安全"><span class="toc-text"> 如何保障信用卡信息等隐私安全</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如何消除自己在网上的痕迹"><span class="toc-text"> 如何消除自己在网上的痕迹</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#结语"><span class="toc-text"> 结语</span></a></li></ol>
+  </div>
+
+
+  </div>
+</div>
+<div class="copyright">
+    <span>本作品采用</span>
+    <a href="https://creativecommons.org/licenses/by/4.0/">知识共享署名 4.0 国际许可协议</a>
+    <span>进行许可。 转载时请注明原文链接。</span>
+</div>
+
+
+  
+    <div class="post-nav">
+      <div class="post-nav-item post-nav-next">
+        
+          <span>〈 </span>
+          <a href="/me-hacker-programming-data/" rel="next" title="我 黑客 编程 数据">
+          我 黑客 编程 数据
+          </a>
+        
+      </div>
+  
+      <div class="post-nav-item post-nav-prev">
+          
+          <a href="/we-are-hacker/" rel="prev" title="我们是黑客吗？">
+            我们是黑客吗？
+          </a>
+          <span>〉</span>
+        
+      </div>
+    </div>
+  
+
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <div id="gitalk-container"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script type="text/javascript">
+        var gitalk = new Gitalk({
+            clientID: 'fa567664f6bdb5976298',
+            clientSecret: 'ee096f560d4360445220f5063af3bf6e4a8ba8e5',
+            id: window.location.pathname,
+            repo: 'fooying_blog',
+            owner: 'fooying',
+            admin: 'fooying'
+        })
+        gitalk.render('gitalk-container')
+    </script>
+
+
+
+    </div>
+
+    
+
+  </div>
+  <footer class="footer text-center">
+    <div id="bottom-inner">
+        <a class="bottom-item" href="https://github.com/fooying" target="_blank">GitHub</a> |
+        <a class="bottom-item" href="/links">友情链接</a> |
+        <a class="bottom-item" href="https://hexo.io" target="_blank">Powered by hexo</a> |
+        <a class="bottom-item" href="https://github.com/fooying/hexo-theme-xoxo-plus" target="_blank">Theme xoxo-plus</a> |
+        <a class="bottom-item" href="/atom.xml">订阅</a>
+    </div>
+</footer>
+
+  
+
+<script>
+  (function(window, document, undefined) {
+
+    var timer = null;
+
+    function returnTop() {
+      cancelAnimationFrame(timer);
+      timer = requestAnimationFrame(function fn() {
+        var oTop = document.body.scrollTop || document.documentElement.scrollTop;
+        if (oTop > 0) {
+          document.body.scrollTop = document.documentElement.scrollTop = oTop - 50;
+          timer = requestAnimationFrame(fn);
+        } else {
+          cancelAnimationFrame(timer);
+        }
+      });
+    }
+
+    var hearts = [];
+    window.requestAnimationFrame = (function() {
+      return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function(callback) {
+          setTimeout(callback, 1000 / 60);
+        }
+    })();
+    init();
+
+    function init() {
+      css(".heart{z-index:9999;width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: '';width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: absolute;}.heart:after{top: -5px;}.heart:before{left: -5px;}");
+      attachEvent();
+      gameloop();
+      addMenuEvent();
+    }
+
+    function gameloop() {
+      for (var i = 0; i < hearts.length; i++) {
+        if (hearts[i].alpha <= 0) {
+          document.body.removeChild(hearts[i].el);
+          hearts.splice(i, 1);
+          continue;
+        }
+        hearts[i].y--;
+        hearts[i].scale += 0.004;
+        hearts[i].alpha -= 0.013;
+        hearts[i].el.style.cssText = "left:" + hearts[i].x + "px;top:" + hearts[i].y + "px;opacity:" + hearts[i].alpha + ";transform:scale(" + hearts[i].scale + "," + hearts[i].scale + ") rotate(45deg);background:" + hearts[i].color;
+      }
+      requestAnimationFrame(gameloop);
+    }
+
+    /**
+     * 给logo设置点击事件
+     * 
+     * - 回到顶部
+     * - 出现爱心
+     */
+    function attachEvent() {
+      var old = typeof window.onclick === "function" && window.onclick;
+      var logo = document.getElementById("logo");
+      if (logo) {
+        logo.onclick = function(event) {
+          returnTop();
+          old && old();
+          createHeart(event);
+        }
+      }
+      
+    }
+
+    function createHeart(event) {
+      var d = document.createElement("div");
+      d.className = "heart";
+      hearts.push({
+        el: d,
+        x: event.clientX - 5,
+        y: event.clientY - 5,
+        scale: 1,
+        alpha: 1,
+        color: randomColor()
+      });
+      document.body.appendChild(d);
+    }
+
+    function css(css) {
+      var style = document.createElement("style");
+      style.type = "text/css";
+      try {
+        style.appendChild(document.createTextNode(css));
+      } catch (ex) {
+        style.styleSheet.cssText = css;
+      }
+      document.getElementsByTagName('head')[0].appendChild(style);
+    }
+
+    function randomColor() {
+      // return "rgb(" + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + ")";
+      return "#F44336";
+    }
+
+    function addMenuEvent() {
+      var menu = document.getElementById('menu-main-post');
+      if (menu) {
+        var toc = document.getElementById('toc');
+        if (toc) {
+          menu.onclick = function() {
+            if (toc) {
+              if (toc.style.display == 'block') {
+                toc.style.display = 'none';
+              } else {
+                toc.style.display = 'block';
+              }
+            }
+          };
+        } else {
+          menu.style.display = 'none';
+        }
+      }
+    }
+
+  })(window, document);
+</script>
+
+  
+  <script>
+    var _hmt = _hmt || [];
+    (function () {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?f290e5fbd596aedbb751f38a7d377f48";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  
+<script>
+  (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+          bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      }
+      else {
+          bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+  })();
+</script>
+
+
+</body>
+</html>

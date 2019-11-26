@@ -1,0 +1,390 @@
+
+<!DOCTYPE html>
+<html lang="">
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#202020">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+  
+  
+    <meta name="keywords" content="社工,社工库,">
+  
+
+  
+    <meta name="description" content="Fooying&#39;s Blog">
+  
+  
+  
+  <link rel="icon" type="image/x-icon" href="/images/footer-logo.png">
+  
+  <title>社工与社工库的那些事 [ Fooying ]</title>
+  
+    <!-- stylesheets list from config.yml -->
+    
+      <link rel="stylesheet" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css">
+    
+      <link rel="stylesheet" href="/css/xoxo.css">
+    
+  
+</head>
+
+
+<body>
+  <div class="nav-container">
+    <nav class="home-menu pure-menu pure-menu-horizontal">
+  <a class="pure-menu-heading" href="/">
+    
+    <span class="title" style="text-transform:none">Fooying</span>
+  </a>
+
+  <ul class="pure-menu-list clearfix">
+      
+          
+            
+              <li class="pure-menu-item"><a href="/" class="pure-menu-link">首页</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
+            
+              <a href="#" id="post" class="pure-menu-link">文章</a>
+              <ul class="pure-menu-children">
+              
+                  
+                    <li class="pure-menu-item"><a href="/categories" style="color:#202020;" class="pure-menu-link">分类</a></li>
+                  
+              
+                  
+                    <li class="pure-menu-item"><a href="/archives" style="color:#202020;" class="pure-menu-link">归档</a></li>
+                  
+              
+                  
+                    <li class="pure-menu-item"><a href="/tags" style="color:#202020;" class="pure-menu-link">标签</a></li>
+                  
+              
+              </ul>
+            </li>
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/paper" class="pure-menu-link">Papers</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/project" class="pure-menu-link">项目</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/activity" class="pure-menu-link">动态</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/search" class="pure-menu-link">搜索</a></li>
+            
+          
+      
+  </ul>
+   
+</nav>
+
+  </div>
+
+  <div class="container" id="content-outer">
+    <div class="inner" id="content-inner">
+      <div class="post-container">
+  <article class="post" id="post">
+    <header class="post-header text-center">
+      <h1 class="title">
+        社工与社工库的那些事
+      </h1>
+      <span>
+        
+        <time class="time" datetime="2014-04-22T09:29:29.000Z">
+        2014-04-22
+      </time>
+        
+      </span>
+      <span class="slash">/</span>
+      <span class="post-meta">
+      <span class="post-tags">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/社工/">社工</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/社工库/">社工库</a></li></ul>
+      </span>
+    </span>
+      <span class="slash">/</span>
+      <span class="read">
+      <span id="busuanzi_value_page_pv"></span> 点击
+    </span>
+      <span class="slash">/</span>
+      <span class="read">阅读耗时 11 分钟</span>
+    </header>
+
+    <div class="post-content">
+      <p>估计看过我前面的《寻找初恋，一个黑客的故事》的同学还记得文章里有一个地方直接查询社工库获得QQ密码进入QQ空间的点。记得有好多同学问我啥是社工库，社工库有那么牛吗？今天跟大家聊的就是这个话题，谈谈社工库。</p>
+<p>估计OpenSSL的漏洞又让许多同学的社工库添加了不少好东西，一些以前想着法子都破不了的站估计都搞到数据了，具体的就不多说了，来谈谈今天的话题。</p>
+<a id="more"></a>
+<h3 id="社工"><a class="markdownIt-Anchor" href="#社工"></a> 社工</h3>
+<p>什么是社工？是不是经常听见说谁又被社工了，或者谁社工了谁？那么到底什么是社工？社工可与百度百科搜索社工得到的结果是不同的，可不是什么社会工作，或者社区工作，社工的全称是社会工程学。带上一个工程，再带上一个学字，然后觉得高端大气上档次了，哈哈。</p>
+<p>开个玩笑，言归正传：</p>
+<blockquote>
+<p>社会工程学是一种通过对受害者心理弱点、本能反应、好奇心、信任、贪婪等心理陷阱进行诸如欺骗、伤害等危害手段；是一种黑客攻击方法，利用欺骗等手段骗取对方信任，获取机密情报；是一种利用人性脆弱点、贪婪等等的心理表现进行攻击，是防不胜防的。所有社会工程学攻击都建立在使人决断产生认知偏差的基础上，熟练的社会工程师都是擅长进行信息收集的身体力行者。</p>
+</blockquote>
+<p>有一本书很出名，估计很多同学都有听说过，叫做《欺骗的艺术》，其实社会工程学就是米特尼克在这本书中提出的，不过其初始目的是让全球的网民们能够懂得网络安全，提高警惕，防止没必要的个人损失，但是现在真正的应用似乎不是这样的。   听起来似乎跟人肉搜索好像一个概念，其实不能把人肉搜索跟社工对等，准确的说，人肉搜索可以算作社工的一种应用。</p>
+<p>那么社工有什么危害？干吗用的？我记得我在蘑菇的《剖析隐私安全的奥秘》（<a href="http://zhuanlan.zhihu.com/Evi1m0/19721012" target="_blank" rel="noopener">http://zhuanlan.zhihu.com/Evi1m0/19721012</a>）文章中概括社工为人性的问题，我一直秉承一句话，计算机的世界里没有不存在的漏洞，只是没发现而已。我虽然这样认为，不过也有一时半会找不着漏洞或者其他方法一时没有成效的时候，那么利用社工，往往就可以获得意向不到的收获。你可以想象下，你不用会任何的代码编写，不用了解任何的安全漏洞，不是一名黑客，结果你利用社工，却能让一个人&quot;赤裸裸&quot;的展现在你眼前，这是多么神奇的一件事。</p>
+<p>其实，社工的利用，包含了很多东西，部分初学安全的同学别一看我这样介绍就想着马上去学社工，在百度百科中还是介绍了挺多的例子，这其中涉及了许多的&quot;斗智斗勇&quot;的过程，也绝非想象的那么简单（百度百科结果 <a href="http://baike.baidu.com/link?url=s09Ve6U1VlIuwt4bXv3Ti5WeB3UspouI4EkieWD6WqNQfjpJwVj0gKNiOqMZWxD6" target="_blank" rel="noopener">社会工程学_百度百科</a>）。</p>
+<h3 id="社工库"><a class="markdownIt-Anchor" href="#社工库"></a> 社工库</h3>
+<p>讲了那么多，想来大家大概明白了社工所谓何物了。那么社工库呢？跟社工相差一字。其实按照字面理解，库就是数据库的意思，组合起来就是社工数据库，其实已经基本是这个意思了。</p>
+<p>上面的社工介绍大家明白了社工在信息收集方面的作用，这些信息中可能有个人信息有密码等等，那么，那么与其每次需要社工的时候再去搜集信息，当有某个网站或者某个应用等之类的数据库或者相关一些数据泄漏出来或者其他方式可以获得，那么为什么不提前收集起来，然后在需要的时候再来查询呢？这样不是更省事省时？</p>
+<p>现在大家应该大概理解社工库了也明白社工库是怎么收集的了。其实社工库看似简单，当数据量足够大的时候，就容易查到自己想查的信息，但是其实也有许多的问题，比如不同的数据库如何处理后入库，不同数据之间如何关联，这么大量的数据如何做到快速的搜索。。。其实还是涉及到挺多问题，当然这些就是数据库处理方面的额问题了。</p>
+<p>就社工库来说，应该很多组织及个人手里都有一个社工库，可能来源主要都是那些泄漏出来的数据库，比如之前的酒店登记数据，以前天涯、CSDN被脱的数据库等等。所以还记得我在文章开头为什么说这次OpenSSL漏洞又让许多社工库添加了许多记录了把？估计这次OpenSSL漏洞很多同学还是刷到了很多有用的数据，整理下，这部分数据就可以入到社工库。</p>
+<p>至于不同的社工库量都有多少？内容都是什么，这个不尽相同。对于很多社工库来说，存储达到T，数据量达到亿级别都是小case。而内容方面，帐号密码、邮箱地址、个人信息等等，也看大家自己的处理方式，这个就不一定了。</p>
+<p>再看看网上那些社工库，其实就是作了处理，对外提供了搜索服务。一个社工库，威力有多大，就看数据库的数量和质量了，理论上达到了一定的量，很多的东西都是可以查的出来的，特别是那些基本所有网站都一个密码的，只要一个社工库的收集的其中一个数据库有他的帐号密码，那么查出来的密码就可以直接登陆该用户的其他帐号了，所以安全方面的防范我其实不用多少大家都明白了，应该看过许多的防范措施之类的了。</p>
+<h3 id="结语"><a class="markdownIt-Anchor" href="#结语"></a> 结语</h3>
+<p>就像社工原本的提出，初衷是好的，技术都是如此的，包括社工或者社工库的使用，怎么用，都是看人的，双面刃，反正其实要讲的，大家都是懂的，我就不多说了。</p>
+
+    </div>
+
+  </article>
+  <div class="toc-container">
+    
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#社工"><span class="toc-text"> 社工</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#社工库"><span class="toc-text"> 社工库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#结语"><span class="toc-text"> 结语</span></a></li></ol>
+  </div>
+
+
+  </div>
+</div>
+<div class="copyright">
+    <span>本作品采用</span>
+    <a href="https://creativecommons.org/licenses/by/4.0/">知识共享署名 4.0 国际许可协议</a>
+    <span>进行许可。 转载时请注明原文链接。</span>
+</div>
+
+
+  
+    <div class="post-nav">
+      <div class="post-nav-item post-nav-next">
+        
+          <span>〈 </span>
+          <a href="/in-those-years-those-security-organization/" rel="next" title="那些年,那些安全组织">
+          那些年,那些安全组织
+          </a>
+        
+      </div>
+  
+      <div class="post-nav-item post-nav-prev">
+          
+          <a href="/src/" rel="prev" title="SRC们">
+            SRC们
+          </a>
+          <span>〉</span>
+        
+      </div>
+    </div>
+  
+
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <div id="gitalk-container"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script type="text/javascript">
+        var gitalk = new Gitalk({
+            clientID: 'fa567664f6bdb5976298',
+            clientSecret: 'ee096f560d4360445220f5063af3bf6e4a8ba8e5',
+            id: window.location.pathname,
+            repo: 'fooying_blog',
+            owner: 'fooying',
+            admin: 'fooying'
+        })
+        gitalk.render('gitalk-container')
+    </script>
+
+
+
+    </div>
+
+    
+
+  </div>
+  <footer class="footer text-center">
+    <div id="bottom-inner">
+        <a class="bottom-item" href="https://github.com/fooying" target="_blank">GitHub</a> |
+        <a class="bottom-item" href="/links">友情链接</a> |
+        <a class="bottom-item" href="https://hexo.io" target="_blank">Powered by hexo</a> |
+        <a class="bottom-item" href="https://github.com/fooying/hexo-theme-xoxo-plus" target="_blank">Theme xoxo-plus</a> |
+        <a class="bottom-item" href="/atom.xml">订阅</a>
+    </div>
+</footer>
+
+  
+
+<script>
+  (function(window, document, undefined) {
+
+    var timer = null;
+
+    function returnTop() {
+      cancelAnimationFrame(timer);
+      timer = requestAnimationFrame(function fn() {
+        var oTop = document.body.scrollTop || document.documentElement.scrollTop;
+        if (oTop > 0) {
+          document.body.scrollTop = document.documentElement.scrollTop = oTop - 50;
+          timer = requestAnimationFrame(fn);
+        } else {
+          cancelAnimationFrame(timer);
+        }
+      });
+    }
+
+    var hearts = [];
+    window.requestAnimationFrame = (function() {
+      return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function(callback) {
+          setTimeout(callback, 1000 / 60);
+        }
+    })();
+    init();
+
+    function init() {
+      css(".heart{z-index:9999;width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: '';width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: absolute;}.heart:after{top: -5px;}.heart:before{left: -5px;}");
+      attachEvent();
+      gameloop();
+      addMenuEvent();
+    }
+
+    function gameloop() {
+      for (var i = 0; i < hearts.length; i++) {
+        if (hearts[i].alpha <= 0) {
+          document.body.removeChild(hearts[i].el);
+          hearts.splice(i, 1);
+          continue;
+        }
+        hearts[i].y--;
+        hearts[i].scale += 0.004;
+        hearts[i].alpha -= 0.013;
+        hearts[i].el.style.cssText = "left:" + hearts[i].x + "px;top:" + hearts[i].y + "px;opacity:" + hearts[i].alpha + ";transform:scale(" + hearts[i].scale + "," + hearts[i].scale + ") rotate(45deg);background:" + hearts[i].color;
+      }
+      requestAnimationFrame(gameloop);
+    }
+
+    /**
+     * 给logo设置点击事件
+     * 
+     * - 回到顶部
+     * - 出现爱心
+     */
+    function attachEvent() {
+      var old = typeof window.onclick === "function" && window.onclick;
+      var logo = document.getElementById("logo");
+      if (logo) {
+        logo.onclick = function(event) {
+          returnTop();
+          old && old();
+          createHeart(event);
+        }
+      }
+      
+    }
+
+    function createHeart(event) {
+      var d = document.createElement("div");
+      d.className = "heart";
+      hearts.push({
+        el: d,
+        x: event.clientX - 5,
+        y: event.clientY - 5,
+        scale: 1,
+        alpha: 1,
+        color: randomColor()
+      });
+      document.body.appendChild(d);
+    }
+
+    function css(css) {
+      var style = document.createElement("style");
+      style.type = "text/css";
+      try {
+        style.appendChild(document.createTextNode(css));
+      } catch (ex) {
+        style.styleSheet.cssText = css;
+      }
+      document.getElementsByTagName('head')[0].appendChild(style);
+    }
+
+    function randomColor() {
+      // return "rgb(" + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + ")";
+      return "#F44336";
+    }
+
+    function addMenuEvent() {
+      var menu = document.getElementById('menu-main-post');
+      if (menu) {
+        var toc = document.getElementById('toc');
+        if (toc) {
+          menu.onclick = function() {
+            if (toc) {
+              if (toc.style.display == 'block') {
+                toc.style.display = 'none';
+              } else {
+                toc.style.display = 'block';
+              }
+            }
+          };
+        } else {
+          menu.style.display = 'none';
+        }
+      }
+    }
+
+  })(window, document);
+</script>
+
+  
+  <script>
+    var _hmt = _hmt || [];
+    (function () {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?f290e5fbd596aedbb751f38a7d377f48";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  
+<script>
+  (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+          bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      }
+      else {
+          bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+  })();
+</script>
+
+
+</body>
+</html>

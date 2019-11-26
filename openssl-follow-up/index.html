@@ -1,0 +1,407 @@
+
+<!DOCTYPE html>
+<html lang="">
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#202020">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+  
+  
+    <meta name="keywords" content="漏洞,zoomeye,OpenSSL,SSL,科普,">
+  
+
+  
+    <meta name="description" content="Fooying&#39;s Blog">
+  
+  
+  
+  <link rel="icon" type="image/x-icon" href="/images/footer-logo.png">
+  
+  <title>OpenSSL后续关注与科普 [ Fooying ]</title>
+  
+    <!-- stylesheets list from config.yml -->
+    
+      <link rel="stylesheet" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css">
+    
+      <link rel="stylesheet" href="/css/xoxo.css">
+    
+  
+</head>
+
+
+<body>
+  <div class="nav-container">
+    <nav class="home-menu pure-menu pure-menu-horizontal">
+  <a class="pure-menu-heading" href="/">
+    
+    <span class="title" style="text-transform:none">Fooying</span>
+  </a>
+
+  <ul class="pure-menu-list clearfix">
+      
+          
+            
+              <li class="pure-menu-item"><a href="/" class="pure-menu-link">首页</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
+            
+              <a href="#" id="post" class="pure-menu-link">文章</a>
+              <ul class="pure-menu-children">
+              
+                  
+                    <li class="pure-menu-item"><a href="/categories" style="color:#202020;" class="pure-menu-link">分类</a></li>
+                  
+              
+                  
+                    <li class="pure-menu-item"><a href="/archives" style="color:#202020;" class="pure-menu-link">归档</a></li>
+                  
+              
+                  
+                    <li class="pure-menu-item"><a href="/tags" style="color:#202020;" class="pure-menu-link">标签</a></li>
+                  
+              
+              </ul>
+            </li>
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/paper" class="pure-menu-link">Papers</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/project" class="pure-menu-link">项目</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/activity" class="pure-menu-link">动态</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/search" class="pure-menu-link">搜索</a></li>
+            
+          
+      
+  </ul>
+   
+</nav>
+
+  </div>
+
+  <div class="container" id="content-outer">
+    <div class="inner" id="content-inner">
+      <div class="post-container">
+  <article class="post" id="post">
+    <header class="post-header text-center">
+      <h1 class="title">
+        OpenSSL后续关注与科普
+      </h1>
+      <span>
+        
+        <time class="time" datetime="2014-04-11T09:12:11.000Z">
+        2014-04-11
+      </time>
+        
+      </span>
+      <span class="slash">/</span>
+      <span class="post-meta">
+      <span class="post-tags">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenSSL/">OpenSSL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SSL/">SSL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/zoomeye/">zoomeye</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/漏洞/">漏洞</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/科普/">科普</a></li></ul>
+      </span>
+    </span>
+      <span class="slash">/</span>
+      <span class="read">
+      <span id="busuanzi_value_page_pv"></span> 点击
+    </span>
+      <span class="slash">/</span>
+      <span class="read">阅读耗时 7 分钟</span>
+    </header>
+
+    <div class="post-content">
+      <p>昨天的提问，收到了很多同学的回答，大家都很积极，大概看了下，各种答案都有，还没整理完，等整理完再说，对于大家说的推荐书籍、paper、论坛、网站、工具等之类的资源，我回头再想想用什么方式推荐给大家，就尽量不占用每天只有一次的发文章的机会了。继续来关注OpenSSL。</p>
+<a id="more"></a>
+<h3 id="漏洞的科普"><a class="markdownIt-Anchor" href="#漏洞的科普"></a> 漏洞的科普</h3>
+<p>首先是来自微博的科普，相信下图应该能让还不是很清楚情况的同学了解OpenSSL是怎么回事了，然后再次说下，问题是出在OpenSSL而不是SSL协议，我之前的文章标题可能也有点误导大家的感觉在里面，这里表示抱歉。</p>
+<p><img src="/images/post/openssl-follow-up/d91332a235e5137f1a794e9de15d3a8e_hd.jpg" alt></p>
+<h3 id="漏洞影响及趋势"><a class="markdownIt-Anchor" href="#漏洞影响及趋势"></a> 漏洞影响及趋势</h3>
+<p>这几天到处都是OpenSSL的漏洞的各种声音，我想大家都被各种刷屏了，我就不多说了，给大家带来最新的趋势和影响。</p>
+<p>来自zoomeye的分布图：<a href="http://www.zoomeye.org/lab/openssl" target="_blank" rel="noopener">http://www.zoomeye.org/lab/openssl</a></p>
+<p><img src="/images/post/openssl-follow-up/f8feb93f770d1207bfb8517067f3543b_hd.jpg" alt></p>
+<blockquote>
+<p>ZoomEye 团队：关于OpenSSL “HeartBleed”漏洞 最新全球受影响服务及主机 SMTP Over SSL : 147292个 POP3 over SSL: 329747 个 IMAP over SSL: 353310个</p>
+</blockquote>
+<blockquote>
+<p>国内的OpenSSL 漏洞443端口受影响依旧明显: 2014.04.08 第一天：33303个 第二天：22611个 第三天：17850 第四天：15661</p>
+</blockquote>
+<p><img src="/images/post/openssl-follow-up/6c3e1505174be70a5c5f414bcb369631_hd.jpg" alt></p>
+<p><img src="/images/post/openssl-follow-up/51ef8045c87d1e9ae71e6b79b058b887_hd.jpg" alt></p>
+<p><img src="/images/post/openssl-follow-up/61d3e0c9d1b56a8f64e56eaff386bcb6_hd.jpg" alt></p>
+<p></p>
+<h3 id="事件报道"><a class="markdownIt-Anchor" href="#事件报道"></a> 事件报道</h3>
+<p>事件报道我就不多说了，网上有很多文章，各种文章有写的好的，有写的有问题的，我就不把文章列出来了，大家可以看央视的《新闻1+1》，以下是链接地址：</p>
+<blockquote>
+<p><a href="http://news.cntv.cn/2014/04/10/VIDE1397139659292888.shtml" target="_blank" rel="noopener">http://news.cntv.cn/2014/04/10/VIDE1397139659292888.shtml</a></p>
+</blockquote>
+<h3 id="漏洞的测试"><a class="markdownIt-Anchor" href="#漏洞的测试"></a> 漏洞的测试</h3>
+<p>对于漏洞而言，有同学问我如何利用POC对漏洞进行测试，其实我在前天的文章中提供了POC就可以对漏洞进行检测的测试，不过可能对于初学的同学还是不了解，我就大概的说下把，关于其他的EXP或者POC其实方式都是类似的，我就不多说了，大部分都是通过命令行来运行的。</p>
+<p>其实那天那个POC就基本能简单的测试了，属于初始版本的POC，其他的我就不多说了，大家自己去研究下。那天那个POC因为Python脚本，需要Python2.7的环境，然后直接运行以下命令就可以了(POC地址<a href="http://pan.baidu.com/s/1c027ILi" target="_blank" rel="noopener">http://pan.baidu.com/s/1c027ILi</a>)：</p>
+<blockquote>
+<p>python <a href="http://openssl.py" target="_blank" rel="noopener">openssl.py</a> 域名</p>
+</blockquote>
+<p><img src="/images/post/openssl-follow-up/4cbfa12be8f1ceece24699e2fe7a9e05_hd.jpg" alt></p>
+<p>如果存在漏洞，就会输出类似以下的内容：</p>
+<p><img src="/images/post/openssl-follow-up/d7dfd74d24a067f66bf8712f5321d220_hd.jpg" alt></p>
+<p>左侧大家看不懂就直接忽略，只要可以直接查看的是右侧的信息（这个界面搞过逆向的同学应该会很熟悉），如果有什么价值的信息就可以找找右侧内容。</p>
+<p>如果是输出这样的情况，则证明不存在漏洞：</p>
+<p><img src="/images/post/openssl-follow-up/101a6cebed12e888509ab2d5a554f950_hd.jpg" alt></p>
+<p>另外，可能大家在群里也经常听到说谁刷了多少库多少数据什么的，可能很会比较好奇那些黑客是怎么刷数据的，其实大概的做法就是用脚本实现批量操作，对指定的网址不间断的进行读取内存64k的信息，也就是不断的运行exp或者POC，当然肯定都是脚本自动化的，也可以对脚本加上格式化处理输出等，通俗的讲，其实就是不断的执行POC，读取64k内存里的内容，那么刷到一定的数据量，就可能出现你想要的东西了，比如帐号密码或者其他的。</p>
+<p>这里给大家大概说了下如何进行漏洞的测试是为了满足大家的好奇心，其实如果大家真对这些东西感兴趣，可以自己去学学相关的东西，具体我就不多说了，有机会再继续跟大家分享。</p>
+
+    </div>
+
+  </article>
+  <div class="toc-container">
+    
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#漏洞的科普"><span class="toc-text"> 漏洞的科普</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#漏洞影响及趋势"><span class="toc-text"> 漏洞影响及趋势</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#事件报道"><span class="toc-text"> 事件报道</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#漏洞的测试"><span class="toc-text"> 漏洞的测试</span></a></li></ol>
+  </div>
+
+
+  </div>
+</div>
+<div class="copyright">
+    <span>本作品采用</span>
+    <a href="https://creativecommons.org/licenses/by/4.0/">知识共享署名 4.0 国际许可协议</a>
+    <span>进行许可。 转载时请注明原文链接。</span>
+</div>
+
+
+  
+    <div class="post-nav">
+      <div class="post-nav-item post-nav-next">
+        
+          <span>〈 </span>
+          <a href="/openssl-vulnerabilities/" rel="next" title="当安全协议不安全了:OpenSSL漏洞">
+          当安全协议不安全了:OpenSSL漏洞
+          </a>
+        
+      </div>
+  
+      <div class="post-nav-item post-nav-prev">
+          
+          <a href="/the-thoughts-for-vulnerability/" rel="prev" title="漏洞之我观">
+            漏洞之我观
+          </a>
+          <span>〉</span>
+        
+      </div>
+    </div>
+  
+
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <div id="gitalk-container"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script type="text/javascript">
+        var gitalk = new Gitalk({
+            clientID: 'fa567664f6bdb5976298',
+            clientSecret: 'ee096f560d4360445220f5063af3bf6e4a8ba8e5',
+            id: window.location.pathname,
+            repo: 'fooying_blog',
+            owner: 'fooying',
+            admin: 'fooying'
+        })
+        gitalk.render('gitalk-container')
+    </script>
+
+
+
+    </div>
+
+    
+
+  </div>
+  <footer class="footer text-center">
+    <div id="bottom-inner">
+        <a class="bottom-item" href="https://github.com/fooying" target="_blank">GitHub</a> |
+        <a class="bottom-item" href="/links">友情链接</a> |
+        <a class="bottom-item" href="https://hexo.io" target="_blank">Powered by hexo</a> |
+        <a class="bottom-item" href="https://github.com/fooying/hexo-theme-xoxo-plus" target="_blank">Theme xoxo-plus</a> |
+        <a class="bottom-item" href="/atom.xml">订阅</a>
+    </div>
+</footer>
+
+  
+
+<script>
+  (function(window, document, undefined) {
+
+    var timer = null;
+
+    function returnTop() {
+      cancelAnimationFrame(timer);
+      timer = requestAnimationFrame(function fn() {
+        var oTop = document.body.scrollTop || document.documentElement.scrollTop;
+        if (oTop > 0) {
+          document.body.scrollTop = document.documentElement.scrollTop = oTop - 50;
+          timer = requestAnimationFrame(fn);
+        } else {
+          cancelAnimationFrame(timer);
+        }
+      });
+    }
+
+    var hearts = [];
+    window.requestAnimationFrame = (function() {
+      return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function(callback) {
+          setTimeout(callback, 1000 / 60);
+        }
+    })();
+    init();
+
+    function init() {
+      css(".heart{z-index:9999;width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: '';width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: absolute;}.heart:after{top: -5px;}.heart:before{left: -5px;}");
+      attachEvent();
+      gameloop();
+      addMenuEvent();
+    }
+
+    function gameloop() {
+      for (var i = 0; i < hearts.length; i++) {
+        if (hearts[i].alpha <= 0) {
+          document.body.removeChild(hearts[i].el);
+          hearts.splice(i, 1);
+          continue;
+        }
+        hearts[i].y--;
+        hearts[i].scale += 0.004;
+        hearts[i].alpha -= 0.013;
+        hearts[i].el.style.cssText = "left:" + hearts[i].x + "px;top:" + hearts[i].y + "px;opacity:" + hearts[i].alpha + ";transform:scale(" + hearts[i].scale + "," + hearts[i].scale + ") rotate(45deg);background:" + hearts[i].color;
+      }
+      requestAnimationFrame(gameloop);
+    }
+
+    /**
+     * 给logo设置点击事件
+     * 
+     * - 回到顶部
+     * - 出现爱心
+     */
+    function attachEvent() {
+      var old = typeof window.onclick === "function" && window.onclick;
+      var logo = document.getElementById("logo");
+      if (logo) {
+        logo.onclick = function(event) {
+          returnTop();
+          old && old();
+          createHeart(event);
+        }
+      }
+      
+    }
+
+    function createHeart(event) {
+      var d = document.createElement("div");
+      d.className = "heart";
+      hearts.push({
+        el: d,
+        x: event.clientX - 5,
+        y: event.clientY - 5,
+        scale: 1,
+        alpha: 1,
+        color: randomColor()
+      });
+      document.body.appendChild(d);
+    }
+
+    function css(css) {
+      var style = document.createElement("style");
+      style.type = "text/css";
+      try {
+        style.appendChild(document.createTextNode(css));
+      } catch (ex) {
+        style.styleSheet.cssText = css;
+      }
+      document.getElementsByTagName('head')[0].appendChild(style);
+    }
+
+    function randomColor() {
+      // return "rgb(" + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + ")";
+      return "#F44336";
+    }
+
+    function addMenuEvent() {
+      var menu = document.getElementById('menu-main-post');
+      if (menu) {
+        var toc = document.getElementById('toc');
+        if (toc) {
+          menu.onclick = function() {
+            if (toc) {
+              if (toc.style.display == 'block') {
+                toc.style.display = 'none';
+              } else {
+                toc.style.display = 'block';
+              }
+            }
+          };
+        } else {
+          menu.style.display = 'none';
+        }
+      }
+    }
+
+  })(window, document);
+</script>
+
+  
+  <script>
+    var _hmt = _hmt || [];
+    (function () {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?f290e5fbd596aedbb751f38a7d377f48";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  
+<script>
+  (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+          bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      }
+      else {
+          bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+  })();
+</script>
+
+
+</body>
+</html>

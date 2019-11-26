@@ -1,0 +1,505 @@
+
+<!DOCTYPE html>
+<html lang="">
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#202020">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+  
+  
+    <meta name="keywords" content="挖矿病毒,Linux入侵,Redis未授权访问,Redis Miner,Miner Worm,">
+  
+
+  
+    <meta name="description" content="Fooying&#39;s Blog">
+  
+  
+  
+  <link rel="icon" type="image/x-icon" href="/images/footer-logo.png">
+  
+  <title>Linux Redis自动化挖矿感染蠕虫分析及安全建议 [ Fooying ]</title>
+  
+    <!-- stylesheets list from config.yml -->
+    
+      <link rel="stylesheet" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css">
+    
+      <link rel="stylesheet" href="/css/xoxo.css">
+    
+  
+</head>
+
+
+<body>
+  <div class="nav-container">
+    <nav class="home-menu pure-menu pure-menu-horizontal">
+  <a class="pure-menu-heading" href="/">
+    
+    <span class="title" style="text-transform:none">Fooying</span>
+  </a>
+
+  <ul class="pure-menu-list clearfix">
+      
+          
+            
+              <li class="pure-menu-item"><a href="/" class="pure-menu-link">首页</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
+            
+              <a href="#" id="post" class="pure-menu-link">文章</a>
+              <ul class="pure-menu-children">
+              
+                  
+                    <li class="pure-menu-item"><a href="/categories" style="color:#202020;" class="pure-menu-link">分类</a></li>
+                  
+              
+                  
+                    <li class="pure-menu-item"><a href="/archives" style="color:#202020;" class="pure-menu-link">归档</a></li>
+                  
+              
+                  
+                    <li class="pure-menu-item"><a href="/tags" style="color:#202020;" class="pure-menu-link">标签</a></li>
+                  
+              
+              </ul>
+            </li>
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/paper" class="pure-menu-link">Papers</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/project" class="pure-menu-link">项目</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/activity" class="pure-menu-link">动态</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/search" class="pure-menu-link">搜索</a></li>
+            
+          
+      
+  </ul>
+   
+</nav>
+
+  </div>
+
+  <div class="container" id="content-outer">
+    <div class="inner" id="content-inner">
+      <div class="post-container">
+  <article class="post" id="post">
+    <header class="post-header text-center">
+      <h1 class="title">
+        Linux Redis自动化挖矿感染蠕虫分析及安全建议
+      </h1>
+      <span>
+        
+        <time class="time" datetime="2018-05-21T16:08:08.000Z">
+        2018-05-22
+      </time>
+        
+      </span>
+      <span class="slash">/</span>
+      <span class="post-meta">
+      <span class="post-tags">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux入侵/">Linux入侵</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Miner-Worm/">Miner Worm</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis-Miner/">Redis Miner</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis未授权访问/">Redis未授权访问</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/挖矿病毒/">挖矿病毒</a></li></ul>
+      </span>
+    </span>
+      <span class="slash">/</span>
+      <span class="read">
+      <span id="busuanzi_value_page_pv"></span> 点击
+    </span>
+      <span class="slash">/</span>
+      <span class="read">阅读耗时 19 分钟</span>
+    </header>
+
+    <div class="post-content">
+      <h4 id="一-背景"><a class="markdownIt-Anchor" href="#一-背景"></a> 一、 背景</h4>
+<p>自从Redis未授权问题获取Linux系统root权限的攻击方法的披露后，由于其易用性，利用该问题入侵Linux服务进行挖矿、扫描等的黑客行为一直层出不穷;而在众多利用该问题入侵服务器进行黑产行为的案例中，其中就存在一类利用该问题进行挖矿并且会利用pnscan自动扫描感染其他机器；该类攻击一直存在，不过在近期又呈现数量增加的趋势，在最近捕获到多次，我们针对其做下具体的分析。</p>
+<a id="more"></a>
+<h4 id="二-漏洞说明"><a class="markdownIt-Anchor" href="#二-漏洞说明"></a> 二、 漏洞说明</h4>
+<p>首先针对利用的漏洞做个说明，Redis 默认情况下，会绑定在<code>0.0.0.0:6379</code>，在没有利用防火墙进行屏蔽的情况下，将会将Redis服务暴露到公网上，如果在没有开启认证的情况下，可以导致任意用户在可以访问目标服务器的情况下未授权访问Redis以及读取Redis的数据。攻击者在未授权访问Redis的情况下利用Redis的相关方法，可以成功将自己的公钥写入目标服务器的 <code>~/.ssh</code> 文件夹的<code>authotrized_keys</code> 文件中，进而可以直接登录目标服务器；如果Redis服务是以root权限启动，可以利用该问题直接获得服务器root权限。</p>
+<p>相关漏洞详情可以参考：</p>
+<p><a href="https://www.seebug.org/vuldb/ssvid-89715" target="_blank" rel="noopener">https://www.seebug.org/vuldb/ssvid-89715</a></p>
+<p>以下为漏洞利用演示:</p>
+<iframe width="600px" height="400px" frameborder="0" src="https://v.qq.com/txp/iframe/player.html?vid=u0661b9o772" allowfullscreen="true"></iframe>
+<p>经过在ZoomEye和SHODAN检索，可以发现分别众多Redis服务开放在公网上，这些服务都可能成为攻击目标。</p>
+<img width="500px" src="/images/post/linux-redis-miner-worm-analysis/hb1l379cwb.jpeg">
+<img width="500px" src="/images/post/linux-redis-miner-worm-analysis/kknfnfhr9o.jpeg">
+<h4 id="三-入侵分析"><a class="markdownIt-Anchor" href="#三-入侵分析"></a> 三、入侵分析</h4>
+<img width="500px" src="/images/post/linux-redis-miner-worm-analysis/9uzzvecgto.jpeg">
+<p>经过对捕获的事件进行分析，我们发现整个入侵流程大概是包含以下几个环节：</p>
+<ol>
+<li>扫描开放<code>6379</code>端口的Linux服务器（后续感染扫描网段为<code>1.0.0.0/16</code>到<code>224.255.0.0/16</code>）</li>
+<li>通过redis-cli尝试连接Redis并执行预置在.dat文件里的利用命令将Redis的数据文件修改为<code>/var/spool/cron/root</code>，然后通过在Redis中插入数据，将下载执行脚本的动作写入crontab任务</li>
+<li>通过脚本实现以上的相关行为，完成植入并启动挖矿程序</li>
+<li>再编译安装<code>pnscan</code>，继续扫描感染下一个目标</li>
+</ol>
+<h4 id="四-脚本分析"><a class="markdownIt-Anchor" href="#四-脚本分析"></a> 四、 脚本分析</h4>
+<p>整个入侵利用以及后续的感染的实现，最主要的功能都是基于通过Redis问题写入crontab任务中下载执行的.cmd脚本来实现的，通过对它的分析，我们基本能够得到整个流程的所有细节，这是一个base脚本，我们通过解读来分析下它的相关功能。</p>
+<img width="500px" src="/images/post/linux-redis-miner-worm-analysis/dnuvht8xa2.jpeg">
+<p>这部分代码只要是用作重复执行的判断，将<code>.mxff0</code>文件作为标记文件，如果存在该文件则代表机器上已执行脚本，直接退出，否则写<code>.mxff0</code>文件并进行下一步动作；</p>
+<img width="500px" src="/images/post/linux-redis-miner-worm-analysis/j2v87u0hbw.png">
+<p>设置预置动作，在脚本退出后删除相关文件和脚本自身；</p>
+<img width="500px" src="/images/post/linux-redis-miner-worm-analysis/2k86jhjyyt.jpeg">
+<p>这部分主要是修改系统的配置，开头两行为关闭<code>SELINUX</code>；然后清空<code>/var/spool/cron</code>，进而判断系统DNS服务器是否存在<code>8.8.8.8</code>，没有则添加；接着清空系统tmp目录和删除相关文件；同时清空系统缓存，而最后修改<code>/etc/security/limits.conf</code>来更新系统的资源限制；</p>
+<img width="500px" src="/images/post/linux-redis-miner-worm-analysis/q00651hrqv.jpeg">
+<p>这里再进一步的增加iptables限制6379端口只允许本地访问，同时kill相关包含挖矿、redis客户端、爬虫等进程，这里的目的也比较简单，避免被其他黑客再次入侵，同时清除可能其他黑客入侵启动的进程；</p>
+<img width="500px" src="/images/post/linux-redis-miner-worm-analysis/7a22ixxugd.jpeg">
+<p>清除相关登录日志、命令操作历史；</p>
+<img width="500px" src="/images/post/linux-redis-miner-worm-analysis/8q9ojzbo01.jpeg">
+<img width="500px" src="/images/post/linux-redis-miner-worm-analysis/nl9vr99utn.jpeg">
+<p>这一长串的内容主要目的是下载并编译安装pnscan，从内容中我们可以看到对于不同操作系统的判断然后安装依赖的相关模块，然后才是从github下载pnscan的源码进行编译安装；至于为什么采用编译安装的形式，猜测是出于兼容不同系统以及每次编译生成的pnscan的MD5都不一样，避免形成固定特征；</p>
+<img width="500px" src="/images/post/linux-redis-miner-worm-analysis/1mf8rosh47.jpeg">
+<p>这部分主要是下载挖矿程序并重命名为<code>.gpg</code>，增加执行权限，执行后删除，同时重新上传到<code>https://transfer.sh/</code> 获取新的链接；</p>
+<img width="500px" src="/images/post/linux-redis-miner-worm-analysis/e5bdity54l.jpeg">
+<p>而这部分内容主要是生成新的<code>.dat</code>文件，包含将原来<code>.cmd</code>脚本里的里挖矿程序的下载地址替换为上一步上传到<code>https://transfer.sh/</code>得到的新地址，还有Redis利用的相关语句；</p>
+<img width="500px" src="/images/post/linux-redis-miner-worm-analysis/7rwytg3jfl.jpeg">
+<p>而步主要是调用pnscan去扫描子网段<code>1.0.0.0/16</code>到<code>224.255.0.0/16</code>中开放6379端口并且操作系统为Linux的目标，然后利用redis-cli执行<code>.dat</code>中的命令，进行下个目标的感染；这里pnscan的-W参数值<code>2a 31 0d 0a 24 34 0d 0a 69 6e 66 6f 0d 0a</code>转换后内容<code>*1\r\n$4\r\nINFO\r\n</code>，是向目标Redis服务发送请求获取Redis服务器的各种信息和统计数值，再通过-R参数值<code>6f 73 3a 4c 69 6e 75 78</code>(转换后内容为<code>os:Linux</code>)判断是否Linux系统。</p>
+<img width="500px" src="/images/post/linux-redis-miner-worm-analysis/mpmgvy76xe.jpeg">
+<p>最后就是收尾工作，清除相关日志和命令执行历史，同时在脚本退出的时候会触发脚本一开始用trap预置的动作，会做删除操作，删除相关文件和脚本自身（<code>rm -rf m* .cmd tmp.* .r .dat $0</code>）。通过对脚本的解读，我们基本已经清楚整个蠕虫的行为和入侵流程，也就是我们开始所描述的流程。</p>
+<p>另外，通过阅读脚本，我们发现虽然整个入侵流程并不是多复杂，但脚本其实有很多”工程化”的细节考虑，不得不让人惊叹入侵者的”考虑周到”：</p>
+<ul>
+<li>利用<code>.mxff0</code>文件做重复执行检验，避免脚本的重复执行</li>
+<li>为了增加成功性，一些环境的预处理：
+<ul>
+<li>关闭SELINUX</li>
+<li>增加<code>8.8.8.8</code>的DNS</li>
+<li>清空tmp目录</li>
+<li>清空系统缓存</li>
+<li>修改系统资源限制</li>
+</ul>
+</li>
+<li>痕迹清除</li>
+<li>利用trap预置动作好在脚本执行完成后删除相关文件和脚本自身</li>
+<li>重复清除相关登录等日志和命令执行历史</li>
+<li>同行预防
+<ul>
+<li>利用iptables避免Redis服务开放在公网上从而导致再次被入侵</li>
+<li>清除同行可能遗留的入侵行为，kill相关进程</li>
+</ul>
+</li>
+<li>系统兼容性
+<ul>
+<li>判断操作系统，针对性的执行相关命令，安装依赖包，最大限度的提高pnscan编译安装的成功率</li>
+<li>关闭SELINUX，通过<code>setenforce</code>和修改<code>/etc/sysconfig/selinux</code>两种手段实现</li>
+<li>写入Crontab里的下载并执行脚本的任务，通过<code>curl、wget、lynx</code>三种方式实现</li>
+<li>Pnscan扫描增加操作系统判断，减少没有必要的感染尝试</li>
+</ul>
+</li>
+<li>特征去除，存活延续
+<ul>
+<li>Pnscan采用安装编译的方式，既提高在不同系统下的兼容性，也避免形成固定的MD5特征</li>
+<li>利用<code>https://transfer.sh</code>中转，每一次感染均生成新的连接，避免固定链接形成固定特征</li>
+<li>下载到系统的相关文件均采用随机生成的文件名</li>
+</ul>
+</li>
+</ul>
+<p>正是由于入侵者种种的”考虑周到”使得他的入侵感染的成功率能够达到的一定的层度。</p>
+<h4 id="五-安全建议"><a class="markdownIt-Anchor" href="#五-安全建议"></a> 五、安全建议</h4>
+<h5 id="病毒清理和系统恢复"><a class="markdownIt-Anchor" href="#病毒清理和系统恢复"></a> 病毒清理和系统恢复</h5>
+<p>我们主要参考脚本的相关行为进行对应的行为恢复和删除即可：</p>
+<ol>
+<li>关闭SELINUX，根据系统原环境和业务需要重新开启SELINUX</li>
+<li>清空了<code>/var/spool/cron</code>，根据原先备份清空恢复</li>
+<li>修改<code>/etc/resolv.conf</code>增加DNS服务<code>8.8.8.8</code>，如无影响可不处理，或者删除</li>
+<li>修改了系统资源限制(<code>/etc/security/limits.conf</code>)，可根据备份情况恢复</li>
+<li>增加了对6379端口的iptables规则，如果不影响业务，建议保留</li>
+<li>kill了相关进程，检查是否包含业务所需进程，根据情况恢复</li>
+<li>安装了相关包，具体列表见上文，可根据情况删除或者如无影响可保留</li>
+<li>编译安装了pnscan，可删除<code>/usr/local/bin/pnscan</code></li>
+<li>清除了相关日志和tmp目录，对系统无影响，可忽略</li>
+<li>启动了挖矿进程和pnscan扫描感染，进程：<code>.gpg、pnscan</code>，直接kill</li>
+<li>还包含了一些中间文件，虽然脚本包含相关删除操作，但建议还是全局查找确认：<code>.mxff0、.x112、.gpg、.dat、.cmd、.r.xx.xx.o/l、tmp.xxxx</code></li>
+</ol>
+<h5 id="redis服务加固"><a class="markdownIt-Anchor" href="#redis服务加固"></a> Redis服务加固</h5>
+<ol>
+<li>导致入侵的主要原因是Redis未授权访问问题，所以如果要扼制入侵的入口，需要针对Redis服务进行加固，避免黑客通过该途径进行入侵植入挖矿蠕虫。</li>
+<li>如无必要，修改bind项，不要将Redis绑定在<code>0.0.0.0</code>上，避免Redis服务开放在外网，可以通过iptables或者腾讯云用户可以通过安全组限制访问来源</li>
+<li>在不影响业务的情况，不要以root启动Redis服务，同时建议修改默认的6379端口，大部分针对Redis未授权问题的入侵都是针对默认端口进行的</li>
+<li>配置AUTH，增加密码校验，这样即使开放在公网上，如果非弱口令的情况，黑客也无法访问Redis服务进行相关操作</li>
+<li>使用<code>rename-command CONFIG &quot;RENAME_CONFIG&quot;</code>重命名相关命令，这样黑客即使在连接上未授权问题的Redis服务，在不知道命令的情况下只能获取相关数据，而无法进一步利用</li>
+</ol>
+<h5 id="其他建议"><a class="markdownIt-Anchor" href="#其他建议"></a> 其他建议</h5>
+<ul>
+<li>腾讯云公有云和私有云用户可以安装腾讯云主机安全产品-云镜，在被入侵植入木马后可以第一时间获得提示，及时止损</li>
+<li>建议开通云镜专业版，可以提前检测获知服务器的安全漏洞，及时修复，避免被利用</li>
+</ul>
+<h4 id="六-附录"><a class="markdownIt-Anchor" href="#六-附录"></a> 六、 附录</h4>
+<h5 id="iocs"><a class="markdownIt-Anchor" href="#iocs"></a> IOCs</h5>
+<ul>
+<li>脚本 <a href="https://transfer.sh/MIpIA/tmp.9kIguIhkI7" target="_blank" rel="noopener">https://transfer.sh/MIpIA/tmp.9kIguIhkI7</a></li>
+<li>挖矿程序
+<ul>
+<li><a href="https://transfer.sh/MIpIA/tmp.vOYTgmtZge" target="_blank" rel="noopener">https://transfer.sh/MIpIA/tmp.vOYTgmtZge</a></li>
+<li>2918ee2b69bc4e6b581c7b25f08434fe</li>
+</ul>
+</li>
+<li>矿池域名 <a href="http://jb.chakpools.com/" target="_blank" rel="noopener">http://jb.chakpools.com/</a></li>
+<li>相关文件名
+<ul>
+<li>.mxff0、.x112、.gpg、.dat、.cmd、.r.xx.xx.o/l、tmp.xxxx</li>
+</ul>
+</li>
+</ul>
+<h5 id="链接"><a class="markdownIt-Anchor" href="#链接"></a> 链接</h5>
+<ul>
+<li>样本https://www.virustotal.com/#/file/9756e66c168ec963c58b3d0ca5483927c14a64a99ba718fa9488a52d4d207ed6</li>
+<li>Pnscan项目地址  <a href="https://github.com/ptrrkssn/pnscan" target="_blank" rel="noopener">https://github.com/ptrrkssn/pnscan</a></li>
+<li>漏洞说明   <a href="https://www.seebug.org/vuldb/ssvid-89715" target="_blank" rel="noopener">https://www.seebug.org/vuldb/ssvid-89715</a></li>
+<li>漏洞利用演示   <a href="https://v.qq.com/x/page/u0661b9o772.html" target="_blank" rel="noopener">https://v.qq.com/x/page/u0661b9o772.html</a></li>
+<li>云镜产品官网   <a href="https://cloud.tencent.com/product/hs" target="_blank" rel="noopener">https://cloud.tencent.com/product/hs</a></li>
+</ul>
+
+    </div>
+
+  </article>
+  <div class="toc-container">
+    
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#一-背景"><span class="toc-text"> 一、 背景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#二-漏洞说明"><span class="toc-text"> 二、 漏洞说明</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#三-入侵分析"><span class="toc-text"> 三、入侵分析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#四-脚本分析"><span class="toc-text"> 四、 脚本分析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#五-安全建议"><span class="toc-text"> 五、安全建议</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#病毒清理和系统恢复"><span class="toc-text"> 病毒清理和系统恢复</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#redis服务加固"><span class="toc-text"> Redis服务加固</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#其他建议"><span class="toc-text"> 其他建议</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#六-附录"><span class="toc-text"> 六、 附录</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#iocs"><span class="toc-text"> IOCs</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#链接"><span class="toc-text"> 链接</span></a></li></ol></li></ol>
+  </div>
+
+
+  </div>
+</div>
+<div class="copyright">
+    <span>本作品采用</span>
+    <a href="https://creativecommons.org/licenses/by/4.0/">知识共享署名 4.0 国际许可协议</a>
+    <span>进行许可。 转载时请注明原文链接。</span>
+</div>
+
+
+  
+    <div class="post-nav">
+      <div class="post-nav-item post-nav-next">
+        
+          <span>〈 </span>
+          <a href="/think-like-hacker/" rel="next" title="【黑客解析】像黑客一样思考">
+          【黑客解析】像黑客一样思考
+          </a>
+        
+      </div>
+  
+      <div class="post-nav-item post-nav-prev">
+          
+          <a href="/hadoop-yarn-rest-api-unauthorized-miner-analysis/" rel="prev" title="Hadoop Yarn REST API 未授权漏洞利用挖矿分析">
+            Hadoop Yarn REST API 未授权漏洞利用挖矿分析
+          </a>
+          <span>〉</span>
+        
+      </div>
+    </div>
+  
+
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <div id="gitalk-container"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script type="text/javascript">
+        var gitalk = new Gitalk({
+            clientID: 'fa567664f6bdb5976298',
+            clientSecret: 'ee096f560d4360445220f5063af3bf6e4a8ba8e5',
+            id: window.location.pathname,
+            repo: 'fooying_blog',
+            owner: 'fooying',
+            admin: 'fooying'
+        })
+        gitalk.render('gitalk-container')
+    </script>
+
+
+
+    </div>
+
+    
+
+  </div>
+  <footer class="footer text-center">
+    <div id="bottom-inner">
+        <a class="bottom-item" href="https://github.com/fooying" target="_blank">GitHub</a> |
+        <a class="bottom-item" href="/links">友情链接</a> |
+        <a class="bottom-item" href="https://hexo.io" target="_blank">Powered by hexo</a> |
+        <a class="bottom-item" href="https://github.com/fooying/hexo-theme-xoxo-plus" target="_blank">Theme xoxo-plus</a> |
+        <a class="bottom-item" href="/atom.xml">订阅</a>
+    </div>
+</footer>
+
+  
+
+<script>
+  (function(window, document, undefined) {
+
+    var timer = null;
+
+    function returnTop() {
+      cancelAnimationFrame(timer);
+      timer = requestAnimationFrame(function fn() {
+        var oTop = document.body.scrollTop || document.documentElement.scrollTop;
+        if (oTop > 0) {
+          document.body.scrollTop = document.documentElement.scrollTop = oTop - 50;
+          timer = requestAnimationFrame(fn);
+        } else {
+          cancelAnimationFrame(timer);
+        }
+      });
+    }
+
+    var hearts = [];
+    window.requestAnimationFrame = (function() {
+      return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function(callback) {
+          setTimeout(callback, 1000 / 60);
+        }
+    })();
+    init();
+
+    function init() {
+      css(".heart{z-index:9999;width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: '';width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: absolute;}.heart:after{top: -5px;}.heart:before{left: -5px;}");
+      attachEvent();
+      gameloop();
+      addMenuEvent();
+    }
+
+    function gameloop() {
+      for (var i = 0; i < hearts.length; i++) {
+        if (hearts[i].alpha <= 0) {
+          document.body.removeChild(hearts[i].el);
+          hearts.splice(i, 1);
+          continue;
+        }
+        hearts[i].y--;
+        hearts[i].scale += 0.004;
+        hearts[i].alpha -= 0.013;
+        hearts[i].el.style.cssText = "left:" + hearts[i].x + "px;top:" + hearts[i].y + "px;opacity:" + hearts[i].alpha + ";transform:scale(" + hearts[i].scale + "," + hearts[i].scale + ") rotate(45deg);background:" + hearts[i].color;
+      }
+      requestAnimationFrame(gameloop);
+    }
+
+    /**
+     * 给logo设置点击事件
+     * 
+     * - 回到顶部
+     * - 出现爱心
+     */
+    function attachEvent() {
+      var old = typeof window.onclick === "function" && window.onclick;
+      var logo = document.getElementById("logo");
+      if (logo) {
+        logo.onclick = function(event) {
+          returnTop();
+          old && old();
+          createHeart(event);
+        }
+      }
+      
+    }
+
+    function createHeart(event) {
+      var d = document.createElement("div");
+      d.className = "heart";
+      hearts.push({
+        el: d,
+        x: event.clientX - 5,
+        y: event.clientY - 5,
+        scale: 1,
+        alpha: 1,
+        color: randomColor()
+      });
+      document.body.appendChild(d);
+    }
+
+    function css(css) {
+      var style = document.createElement("style");
+      style.type = "text/css";
+      try {
+        style.appendChild(document.createTextNode(css));
+      } catch (ex) {
+        style.styleSheet.cssText = css;
+      }
+      document.getElementsByTagName('head')[0].appendChild(style);
+    }
+
+    function randomColor() {
+      // return "rgb(" + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + ")";
+      return "#F44336";
+    }
+
+    function addMenuEvent() {
+      var menu = document.getElementById('menu-main-post');
+      if (menu) {
+        var toc = document.getElementById('toc');
+        if (toc) {
+          menu.onclick = function() {
+            if (toc) {
+              if (toc.style.display == 'block') {
+                toc.style.display = 'none';
+              } else {
+                toc.style.display = 'block';
+              }
+            }
+          };
+        } else {
+          menu.style.display = 'none';
+        }
+      }
+    }
+
+  })(window, document);
+</script>
+
+  
+  <script>
+    var _hmt = _hmt || [];
+    (function () {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?f290e5fbd596aedbb751f38a7d377f48";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  
+<script>
+  (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+          bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      }
+      else {
+          bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+  })();
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,517 @@
+
+<!DOCTYPE html>
+<html lang="">
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#202020">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+  
+  
+    <meta name="keywords" content="XSS,跨站的艺术,">
+  
+
+  
+    <meta name="description" content="Fooying&#39;s Blog">
+  
+  
+  
+  <link rel="icon" type="image/x-icon" href="/images/footer-logo.png">
+  
+  <title>跨站的艺术-XSS入门与介绍 [ Fooying ]</title>
+  
+    <!-- stylesheets list from config.yml -->
+    
+      <link rel="stylesheet" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css">
+    
+      <link rel="stylesheet" href="/css/xoxo.css">
+    
+  
+</head>
+
+
+<body>
+  <div class="nav-container">
+    <nav class="home-menu pure-menu pure-menu-horizontal">
+  <a class="pure-menu-heading" href="/">
+    
+    <span class="title" style="text-transform:none">Fooying</span>
+  </a>
+
+  <ul class="pure-menu-list clearfix">
+      
+          
+            
+              <li class="pure-menu-item"><a href="/" class="pure-menu-link">首页</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
+            
+              <a href="#" id="post" class="pure-menu-link">文章</a>
+              <ul class="pure-menu-children">
+              
+                  
+                    <li class="pure-menu-item"><a href="/categories" style="color:#202020;" class="pure-menu-link">分类</a></li>
+                  
+              
+                  
+                    <li class="pure-menu-item"><a href="/archives" style="color:#202020;" class="pure-menu-link">归档</a></li>
+                  
+              
+                  
+                    <li class="pure-menu-item"><a href="/tags" style="color:#202020;" class="pure-menu-link">标签</a></li>
+                  
+              
+              </ul>
+            </li>
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/paper" class="pure-menu-link">Papers</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/project" class="pure-menu-link">项目</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/activity" class="pure-menu-link">动态</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/search" class="pure-menu-link">搜索</a></li>
+            
+          
+      
+  </ul>
+   
+</nav>
+
+  </div>
+
+  <div class="container" id="content-outer">
+    <div class="inner" id="content-inner">
+      <div class="post-container">
+  <article class="post" id="post">
+    <header class="post-header text-center">
+      <h1 class="title">
+        跨站的艺术-XSS入门与介绍
+      </h1>
+      <span>
+        
+        <time class="time" datetime="2017-02-13T16:08:08.000Z">
+        2017-02-14
+      </time>
+        
+      </span>
+      <span class="slash">/</span>
+      <span class="post-meta">
+      <span class="post-tags">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/XSS/">XSS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/跨站的艺术/">跨站的艺术</a></li></ul>
+      </span>
+    </span>
+      <span class="slash">/</span>
+      <span class="read">
+      <span id="busuanzi_value_page_pv"></span> 点击
+    </span>
+      <span class="slash">/</span>
+      <span class="read">阅读耗时 21 分钟</span>
+    </header>
+
+    <div class="post-content">
+      <h3 id="什么是xss"><a class="markdownIt-Anchor" href="#什么是xss"></a> 什么是XSS?</h3>
+<p>XSS全称跨站脚本(Cross Site Scripting)，为不和层叠样式表(Cascading Style Sheets, CSS)的缩写混淆，故缩写为XSS，比较合适的方式应该叫做跨站脚本攻击。</p>
+<p>跨站脚本攻击是一种常见的web安全漏洞，它主要是指攻击者可以在页面中插入恶意脚本代码，当受害者访问这些页面时，浏览器会解析并执行这些恶意代码，从而达到窃取用户身份/钓鱼/传播恶意代码等行为。</p>
+<a id="more"></a>
+<img width="500px" src="/images/post/the-art-of-xss-1-introduction/1487061906_10_w867_h450.jpeg">
+<p>上图就是一个典型的存储型XSS。</p>
+<h4 id="什么是payload"><a class="markdownIt-Anchor" href="#什么是payload"></a> 什么是Payload？</h4>
+<p>Payload是一个专业术语，中文翻译过来是是有效荷载，可能经常会从搞安全的口里说出，那么什么是Payload？什么又是Exp？什么又是PoC？</p>
+<p>先介绍PoC，PoC的全称是Proof of Concept，意思为概念验证，通俗的可以理解为漏洞验证脚本；而Exp是Exploit的简写，意思为漏洞利用，两者的区别即使一个仅限于验证，而一个是攻击利用。那么Payload呢？Payload是组成PoC和Exp的必要部分，也可以理解为验证代码。</p>
+<p>打个比喻，假如某个窗户存在问题，任何钥匙都可以开，那么这个比喻为一个漏洞，那么用钥匙打开窗户，看下是否可以打开，这是PoC做的事，而打开窗户后进去偷东西，这是Exp做的事，而那把钥匙就可以理解为Payload，Payload不区分是否攻击利用。</p>
+<p>比如刚才上图中的那个XSS漏洞的Payload 如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;img src=0 onerror=alert(5)&gt;</span><br></pre></td></tr></table></figure>
+<h4 id="xss是怎么产生的"><a class="markdownIt-Anchor" href="#xss是怎么产生的"></a> XSS是怎么产生的？</h4>
+<p>经常也会听到一个词，注入点，或者说专业术语是向量，指的是黑客可控内容的提交的位置，比如下图中，搜索框，黑客可以控制输入的内容，然后进行提交，那么实际在测试漏洞的时候，就可以把注入点的内容替换为Payload进行验证。</p>
+<img width="500px" src="/images/post/the-art-of-xss-1-introduction/1487062871_74_w1732_h644.jpeg">
+<ol>
+<li>GET 请求参数</li>
+<li>POST请求参数</li>
+<li>UA</li>
+<li>Referer</li>
+<li>URI<br>
+…</li>
+</ol>
+<p><strong>一切可以提交数据到页面的点都称作向量</strong></p>
+<p>而XSS或者说Web漏洞是怎么产生的？<strong>对非预期输入的信任！</strong><br>
+安全的本质是信任的问题，在上图中，搜索框的设置对于开发者来说，理论上应该输入的是正常的字符串，进行搜索，这是一种对输入的信任，并且这种信任对于开发者来说是有预期的，在他的预期里输入是正常的字符串，而漏洞的产生就在于出现了非预期的情况，开发者没有针对性的做处理。</p>
+<img width="500px" src="/images/post/the-art-of-xss-1-introduction/1487062991_21_w1867_h854.jpeg">
+<p>这是以前挖的一个联想商城的XSS。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">test //预期无害的输入</span><br><span class="line">XSStest&quot; onmouseover=alert(4438) x=&quot;  //非预期输入</span><br></pre></td></tr></table></figure>
+<h3 id="xss分类"><a class="markdownIt-Anchor" href="#xss分类"></a> XSS分类</h3>
+<p>接下来来看看不同的XSS分类。</p>
+<ul>
+<li>反射型（非持久型）</li>
+<li>存储型（持久型）</li>
+<li>DOM型</li>
+</ul>
+<p>这是最常见的三种分类：</p>
+<h4 id="存储型"><a class="markdownIt-Anchor" href="#存储型"></a> 存储型</h4>
+<p>存储型XSS也叫持久型XSS，存储的意思就是Payload是有经过存储的，当一个页面存在存储型XSS的时候，XSS注入成功后，那么每次访问该页面都将触发XSS，典型的例子是：</p>
+<p>如留言板</p>
+<ol>
+<li>插入留言=&gt;内容存储到数据库</li>
+<li>查看留言=&gt;内容从数据库提取出来</li>
+<li>内容在页面显示</li>
+</ol>
+<p>如果这里存在XSS，Payload可以通过留言内容提交，然后显示在页面的时候可以生效，那么就是典型的存储型XSS。</p>
+<img width="500px" src="/images/post/the-art-of-xss-1-introduction/1487063426_46_w624_h356.png">
+<p>开头的那个就是存储型XSS，而这个也是之前微信网页版存在的另外一个存储型XSS，昵称中包含XSS 的Payload，在点开查看群成员列表的时候就可以触发XSS。</p>
+<h4 id="反射型"><a class="markdownIt-Anchor" href="#反射型"></a> 反射型</h4>
+<p>反射型XSS也叫非持久型XSS，最常见的是Payload是构造在网址的某个GET参数的值里。 比如这样的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://www.xx.com/company/search.html?key_pro=&quot;&gt;&lt;script&gt;confirm(1501)&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+<p>与存储型相反，反射型XSS的是通过提交内容，然后不经过数据库，直接反射回显在页面上，比如说以下代码就存在反射想的XSS，通过参数get的值提交Payload：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo $_GET\[&apos;get&apos;\];</span><br></pre></td></tr></table></figure>
+<img width="300px" src="/images/post/the-art-of-xss-1-introduction/1487063662_3_w720_h1280.png"> 
+<p>这是之前微信朋友圈的一个活动，一个很常见的形式，通过微信点击进入，授权登录，自动获取微信昵称，然后生成邀请函，而实际上读取的昵称是构造在网址上的，由于没有过滤，于是存在反射型XSS，点击的话就会跳转我的博客。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://tdf.qq.com/mobile/index2.html?name=&lt;a href=&quot;http://www.fooying.com&quot;&gt;点击抽奖&lt;/a&gt;&amp;type=share&amp;from=timeline&amp;isappinstalled=1</span><br></pre></td></tr></table></figure>
+<h4 id="dom-型"><a class="markdownIt-Anchor" href="#dom-型"></a> DOM 型</h4>
+<p>其实DOM型也属于反射型的一种，不过比较特殊，所以一般也当做一种单独类型。 比如之前挖过的一个wechat.com的DOM型XSS，最终构造完网址地址是这样的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://wechat.com/en/features.html#&lt;img src=0 onerror=&apos;alert(0)&apos;&gt;</span><br></pre></td></tr></table></figure>
+<p>而其背后代码生效大概是这样的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line">var name = location.hash;</span><br><span class="line">document.write(name);</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+<img width="500px" src="/images/post/the-art-of-xss-1-introduction/1487063955_60_w982_h485.jpeg">
+<p>上图是以前挖的一个qq.com子域名的一个注入点存在于Referer的DOM型XSS，在页面地址为<code>http://www.0xsafe.com&quot; onerror=&quot;alert(0)</code>的页面点击链接跳转到<code>datalib.ent.qq.com/tv/3362/detail.shtml</code>，就可以触发XSS，页面中存在JS语句获取Referer，然后通过页面加入img标签的的方式发起了一个GET请求，应该是一个访问来源记录的东西，而对于Referer的值没有做处理，于是就存在DOM型XSS。</p>
+<h4 id="其他类型xss"><a class="markdownIt-Anchor" href="#其他类型xss"></a> 其他类型XSS</h4>
+<p>上面是大家经常听到的XSS类型，其实细分下来还有其他的XSS类型：</p>
+<ul>
+<li>mXSS 突变型XSS</li>
+<li>UXSS 通用型XSS</li>
+<li>Flash XSS</li>
+<li>UTF-7 XSS</li>
+<li>MHTML XSS</li>
+<li>CSS XSS</li>
+<li>VBScript XSS</li>
+</ul>
+<p>其中UTF-7、MHTML XSS、CSS XSS、VBScript XSS 只在低版本的IE中可以生效，现在应该基本不可见了，不过还是给大家介绍下。</p>
+<h5 id="mxss"><a class="markdownIt-Anchor" href="#mxss"></a> mXSS</h5>
+<p>mXSS中文是突变型XSS，指的是原先的Payload提交是无害不会产生XSS，而由于一些特殊原因，如反编码等，导致Payload发生变异，导致的XSS。下面的漏洞是存在于以前版本的PC的QQ客户端的页面预览功能。</p>
+<img width="500px" src="/images/post/the-art-of-xss-1-introduction/1487064388_8_w908_h405.png">
+<p>这是博客园提交的一篇文章，可以看到，提交的XSS Payload已经被转义了，不产生危害。</p>
+<img width="500px" src="/images/post/the-art-of-xss-1-introduction/1487064477_26_w627_h400.png">
+<img width="500px" src="/images/post/the-art-of-xss-1-introduction/1487064499_63_w585_h307.jpeg">
+<p>上图是在QQ客户端里分享上面的博客园那篇文章的链接，而QQ存在网址预览功能，于是点击网址可以在右侧显示出优化后的页面的内容，就导致了XSS的产生；这个预览功能实际上是QQ客户端内嵌了一个网页，这个页面对原网页内容进行提取和处理的过程中，将原本无害的XSS Payload进行了转码操作，于是导致了Payload 变异而产生了XSS，我记得这个XSS，我前后一共绕过了三四次，然后提交给了TSRC。</p>
+<p>实际上，页面预览这个功能不是针对所有网址都可以预览，对于一些大型的网站，估计是有白名单机制或者是认证的网站，才能进行预览，随便一个网址是不可以的，这本身也是一种信任的限制在里面，如果是随意的网站，那就更好控制内容了，所以对于域名是有限制的；这里也存在一个信任的问题，理论上，这些大站的内容应该是没问题的，但实际情况是可被控制而导致产生XSS。</p>
+<h5 id="uxss"><a class="markdownIt-Anchor" href="#uxss"></a> UXSS</h5>
+<p>UXSS全称Universal Cross-Site Scripting，翻译过来就是通用型XSS，也叫Universal  XSS。UXSS是一种利用浏览器或者浏览器扩展漏洞来制造产生XSS的条件并执行代码的一种攻击类型。UXSS 可以理解为Bypass 同源策略。</p>
+<blockquote>
+<p>同源策略：不同域的客户端脚本在没明确授权的情况下，不能读写对方的资源</p>
+</blockquote>
+<img width="300px" src="/images/post/the-art-of-xss-1-introduction/1487064760_87_w540_h960.jpeg">
+<p>上图就是一个安卓内核浏览器存在的UXSS，访问<code>www.0xsafe.org/x.html</code>，页面嵌套TSRC的页面，然后可以读取到TSRC站点的Cookie，具体的介绍我之前有写过一篇文章： <a href="http://www.fooying.com/uxss/">通用跨站脚本攻击(UXSS)</a></p>
+<h5 id="flash-xss"><a class="markdownIt-Anchor" href="#flash-xss"></a> Flash XSS</h5>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">var a:String = root.loaderInfo.parameters.par</span><br><span class="line">if(ExternalInterface.available)&#123;</span><br><span class="line">    ExternalInterface.call(&quot;alert&quot;,a)</span><br><span class="line">&#125; else &#123;</span><br><span class="line">    trace(100)</span><br><span class="line">&#125;</span><br><span class="line">stop()</span><br></pre></td></tr></table></figure>
+<p>Flash 产生的XSS主要来源于：</p>
+<ul>
+<li>getURL/navigateToURL  访问跳转</li>
+<li>ExternalInterface.call 调用js函数</li>
+</ul>
+<p>前者是访问跳转到指定URL，后者则是调用页面中JS函数，比如上面的代码就会导致弹框。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://img.xiami.net/res/kuang/xiamikuang5tab.swf?rname=%E6%96%B0%E6%AD%8C%3C%3E&amp;dataUrl=http://www.0xsafe.org/0.xml&amp;ccnum=300&amp;recordNum=30</span><br></pre></td></tr></table></figure>
+<img width="500px" src="/images/post/the-art-of-xss-1-introduction/1487065195_21_w615_h404.jpeg">
+<img width="500px" src="/images/post/the-art-of-xss-1-introduction/1487065295_23_w524_h166.jpeg">
+<p>这是之前虾米的一个播放器页面，然后分享功能可以通过网址里的参数直接控制一些值，于是就存在了可控的注入点，通过构造Payload可以触发，当点击进行分享的时候就会触发XSS。</p>
+<img width="500px" src="/images/post/the-art-of-xss-1-introduction/1487065319_95_w602_h332.jpeg">
+<p>这里也有篇介绍Flash XSS的文章：<a href="https://www.secpulse.com/archives/44299.html" target="_blank" rel="noopener">https://www.secpulse.com/archives/44299.html</a>，大家感兴趣的也可以看下。</p>
+<h5 id="utf-7-xss"><a class="markdownIt-Anchor" href="#utf-7-xss"></a> UTF-7 XSS</h5>
+<p>在以下两种场景可以在低版本IE浏览器触发UTF-7 XSS：</p>
+<ul>
+<li>meta未指定编码，特定版本IE发现内容存在UTF-7编码内容，则自动以UTF-7解码处理</li>
+<li>指定编码为UTF-7</li>
+</ul>
+<p>UTF-7 XSS与普通XSS的区别就在于构造的Payload是UTF-7编码的，而基于上面两个场景的特性，低版本IE浏览器会自动解码，于是就可以产生XSS。</p>
+<img width="500px" src="/images/post/the-art-of-xss-1-introduction/1487065523_25_w431_h56.jpeg">
+<p>上图中，a变量的值就是UTF-7 XSS 的Payload，实际上是正常Payload UTF-7编码后的结果。</p>
+<h5 id="mhtml-xss"><a class="markdownIt-Anchor" href="#mhtml-xss"></a> MHTML XSS</h5>
+<p>MHTML XSS 同样只存在于低版本的IE中，MHTML是MIME HTML (Multipurpose Internet Mail Extension HTML，聚合超文本标记语言)的缩写，把一个多附件（如图片，flash动画等）的网页内容都保存到单一档案的标准，是类似HTTP的协议，在IE中，当嵌入资源的URL的协议为MHTML 时，IE将调用MHTML Protocol Handler，把该资源当作MHTML格式文件解析处理。</p>
+<p>x.html 内容：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Content-Type:multipart/related;boundary=&quot;x&quot;</span><br><span class="line">--x</span><br><span class="line">Content-Location:xss</span><br><span class="line">Content-Transfer-Encoding:base64</span><br><span class="line">PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==</span><br><span class="line">--x--</span><br></pre></td></tr></table></figure>
+<p>其中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg== BASE64解码:&lt;script&gt;alert(1)&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+<p>通过特定的访问方式：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mhtml:www.x.com/a.html!xss</span><br></pre></td></tr></table></figure>
+<p>就可以触发XSS，具体更多内容大家也可以自己搜索看看。</p>
+<h5 id="css-xss"><a class="markdownIt-Anchor" href="#css-xss"></a> CSS XSS</h5>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;style&gt;</span><br><span class="line">    body &#123;width:expression(alert(1));: red;&#125;</span><br><span class="line">&lt;/style&gt;</span><br></pre></td></tr></table></figure>
+<p>CSS XSS 是缘于IE8 Beta2以前版本支持使用expression在CSS中定义表达式(公式)来达到建立元素间属性之间的联系等作用，于是就可以通过以上代码的方式触发XSS。</p>
+<h5 id="vbscript-xss"><a class="markdownIt-Anchor" href="#vbscript-xss"></a> VBScript XSS</h5>
+<p>VBScript XSS 同上面几种XSS一样，也是微软的产物，也可以触发XSS。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;input type =&quot;button&quot; onClick=&quot;VBScript:Document.Write &apos;hello mr. Fooying&apos;</span><br><span class="line"></span><br><span class="line">MsgBox &apos;xss&apos;&quot;&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="xss防御"><a class="markdownIt-Anchor" href="#xss防御"></a> XSS防御</h3>
+<p>XSS的防御我就不多说了，之前有翻译过OWASP Xenotix XSS 漏洞利用框架作者Ajin Abranham写的一个<a href="https://github.com/fooying/Papers/blob/master/%E7%BB%99%E5%BC%80%E5%8F%91%E8%80%85%E7%9A%84%E7%BB%88%E6%9E%81XSS%E9%98%B2%E6%8A%A4%E5%A4%87%E5%BF%98%E5%BD%95.pdf" target="_blank" rel="noopener">《给开发者的终极XSS防御备忘录》</a>，大家可以自己看看。</p>
+<h3 id="其他"><a class="markdownIt-Anchor" href="#其他"></a> 其他</h3>
+<p>其实关于XSS，有很多东西可以深入，包括说学习XSS需要了解各种编码转义，各种绕过，这篇文章主要是进行入门的介绍，然后附件里还附了一个附件是介绍XSS蠕虫的，以前翻译的，大家也可以自己看看，下面是是一些学习资源。</p>
+<h4 id="一些在线xss游戏"><a class="markdownIt-Anchor" href="#一些在线xss游戏"></a> 一些在线XSS游戏</h4>
+<ul>
+<li><a href="http://prompt.ml/" target="_blank" rel="noopener">http://prompt.ml/</a> 答案：<a href="https://github.com/cure53/xss-challenge-wiki/wiki/prompt.ml" target="_blank" rel="noopener">https://github.com/cure53/xss-challenge-wiki/wiki/prompt.ml</a></li>
+<li><a href="http://escape.alf.nu/" target="_blank" rel="noopener">http://escape.alf.nu/</a> 答案：<a href="http://blog.163.com/cmdbat@126/blog/static/17029212320149385547765/" target="_blank" rel="noopener">http://blog.163.com/cmdbat@126/blog/static/17029212320149385547765/</a></li>
+<li><a href="https://xss-game.appspot.com/" target="_blank" rel="noopener">https://xss-game.appspot.com/</a>  答案：<a href="http://www.freebuf.com/articles/web/36072.html" target="_blank" rel="noopener">http://www.freebuf.com/articles/web/36072.html</a></li>
+<li><a href="http://xss-quiz.int21h.jp/" target="_blank" rel="noopener">http://xss-quiz.int21h.jp/</a> 答案：<a href="http://blog.163.com/cmdbat@126/blog/static/1702921232013112542728566/" target="_blank" rel="noopener">http://blog.163.com/cmdbat@126/blog/static/1702921232013112542728566/</a></li>
+</ul>
+<h4 id="一些学习网址"><a class="markdownIt-Anchor" href="#一些学习网址"></a> 一些学习网址</h4>
+<ul>
+<li><a href="https://www.owasp.org/index.php/XSS" target="_blank" rel="noopener">https://www.owasp.org/index.php/XSS</a></li>
+<li><a href="https://www.google.com/about/appsecurity/" target="_blank" rel="noopener">https://www.google.com/about/appsecurity/</a></li>
+<li><a href="http://www.freebuf.com/author/black-hole" target="_blank" rel="noopener">http://www.freebuf.com/author/black-hole（看原理与剖析系列）</a></li>
+<li><a href="http://html5sec.org/" target="_blank" rel="noopener">http://html5sec.org/</a></li>
+<li><a href="http://www.pkav.net/" target="_blank" rel="noopener">http://www.pkav.net/</a></li>
+<li><a href="https://xssing.org/%E9%A6%96%E9%A1%B5" target="_blank" rel="noopener">https://xssing.org/</a></li>
+</ul>
+
+    </div>
+
+  </article>
+  <div class="toc-container">
+    
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是xss"><span class="toc-text"> 什么是XSS?</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#什么是payload"><span class="toc-text"> 什么是Payload？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#xss是怎么产生的"><span class="toc-text"> XSS是怎么产生的？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#xss分类"><span class="toc-text"> XSS分类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#存储型"><span class="toc-text"> 存储型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#反射型"><span class="toc-text"> 反射型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#dom-型"><span class="toc-text"> DOM 型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#其他类型xss"><span class="toc-text"> 其他类型XSS</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#mxss"><span class="toc-text"> mXSS</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#uxss"><span class="toc-text"> UXSS</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#flash-xss"><span class="toc-text"> Flash XSS</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#utf-7-xss"><span class="toc-text"> UTF-7 XSS</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#mhtml-xss"><span class="toc-text"> MHTML XSS</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#css-xss"><span class="toc-text"> CSS XSS</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#vbscript-xss"><span class="toc-text"> VBScript XSS</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#xss防御"><span class="toc-text"> XSS防御</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#其他"><span class="toc-text"> 其他</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#一些在线xss游戏"><span class="toc-text"> 一些在线XSS游戏</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#一些学习网址"><span class="toc-text"> 一些学习网址</span></a></li></ol></li></ol>
+  </div>
+
+
+  </div>
+</div>
+<div class="copyright">
+    <span>本作品采用</span>
+    <a href="https://creativecommons.org/licenses/by/4.0/">知识共享署名 4.0 国际许可协议</a>
+    <span>进行许可。 转载时请注明原文链接。</span>
+</div>
+
+
+  
+    <div class="post-nav">
+      <div class="post-nav-item post-nav-next">
+        
+          <span>〈 </span>
+          <a href="/point_to_face_vulnerability_research/" rel="next" title="点到面的漏洞研究与利用--从黑产的角度思考利用漏洞">
+          点到面的漏洞研究与利用--从黑产的角度思考利用漏洞
+          </a>
+        
+      </div>
+  
+      <div class="post-nav-item post-nav-prev">
+          
+          <a href="/how-hacker-data-extort/" rel="prev" title="【黑客解析】黑客是如何实现数据勒索">
+            【黑客解析】黑客是如何实现数据勒索
+          </a>
+          <span>〉</span>
+        
+      </div>
+    </div>
+  
+
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <div id="gitalk-container"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script type="text/javascript">
+        var gitalk = new Gitalk({
+            clientID: 'fa567664f6bdb5976298',
+            clientSecret: 'ee096f560d4360445220f5063af3bf6e4a8ba8e5',
+            id: window.location.pathname,
+            repo: 'fooying_blog',
+            owner: 'fooying',
+            admin: 'fooying'
+        })
+        gitalk.render('gitalk-container')
+    </script>
+
+
+
+    </div>
+
+    
+
+  </div>
+  <footer class="footer text-center">
+    <div id="bottom-inner">
+        <a class="bottom-item" href="https://github.com/fooying" target="_blank">GitHub</a> |
+        <a class="bottom-item" href="/links">友情链接</a> |
+        <a class="bottom-item" href="https://hexo.io" target="_blank">Powered by hexo</a> |
+        <a class="bottom-item" href="https://github.com/fooying/hexo-theme-xoxo-plus" target="_blank">Theme xoxo-plus</a> |
+        <a class="bottom-item" href="/atom.xml">订阅</a>
+    </div>
+</footer>
+
+  
+
+<script>
+  (function(window, document, undefined) {
+
+    var timer = null;
+
+    function returnTop() {
+      cancelAnimationFrame(timer);
+      timer = requestAnimationFrame(function fn() {
+        var oTop = document.body.scrollTop || document.documentElement.scrollTop;
+        if (oTop > 0) {
+          document.body.scrollTop = document.documentElement.scrollTop = oTop - 50;
+          timer = requestAnimationFrame(fn);
+        } else {
+          cancelAnimationFrame(timer);
+        }
+      });
+    }
+
+    var hearts = [];
+    window.requestAnimationFrame = (function() {
+      return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function(callback) {
+          setTimeout(callback, 1000 / 60);
+        }
+    })();
+    init();
+
+    function init() {
+      css(".heart{z-index:9999;width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: '';width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: absolute;}.heart:after{top: -5px;}.heart:before{left: -5px;}");
+      attachEvent();
+      gameloop();
+      addMenuEvent();
+    }
+
+    function gameloop() {
+      for (var i = 0; i < hearts.length; i++) {
+        if (hearts[i].alpha <= 0) {
+          document.body.removeChild(hearts[i].el);
+          hearts.splice(i, 1);
+          continue;
+        }
+        hearts[i].y--;
+        hearts[i].scale += 0.004;
+        hearts[i].alpha -= 0.013;
+        hearts[i].el.style.cssText = "left:" + hearts[i].x + "px;top:" + hearts[i].y + "px;opacity:" + hearts[i].alpha + ";transform:scale(" + hearts[i].scale + "," + hearts[i].scale + ") rotate(45deg);background:" + hearts[i].color;
+      }
+      requestAnimationFrame(gameloop);
+    }
+
+    /**
+     * 给logo设置点击事件
+     * 
+     * - 回到顶部
+     * - 出现爱心
+     */
+    function attachEvent() {
+      var old = typeof window.onclick === "function" && window.onclick;
+      var logo = document.getElementById("logo");
+      if (logo) {
+        logo.onclick = function(event) {
+          returnTop();
+          old && old();
+          createHeart(event);
+        }
+      }
+      
+    }
+
+    function createHeart(event) {
+      var d = document.createElement("div");
+      d.className = "heart";
+      hearts.push({
+        el: d,
+        x: event.clientX - 5,
+        y: event.clientY - 5,
+        scale: 1,
+        alpha: 1,
+        color: randomColor()
+      });
+      document.body.appendChild(d);
+    }
+
+    function css(css) {
+      var style = document.createElement("style");
+      style.type = "text/css";
+      try {
+        style.appendChild(document.createTextNode(css));
+      } catch (ex) {
+        style.styleSheet.cssText = css;
+      }
+      document.getElementsByTagName('head')[0].appendChild(style);
+    }
+
+    function randomColor() {
+      // return "rgb(" + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + ")";
+      return "#F44336";
+    }
+
+    function addMenuEvent() {
+      var menu = document.getElementById('menu-main-post');
+      if (menu) {
+        var toc = document.getElementById('toc');
+        if (toc) {
+          menu.onclick = function() {
+            if (toc) {
+              if (toc.style.display == 'block') {
+                toc.style.display = 'none';
+              } else {
+                toc.style.display = 'block';
+              }
+            }
+          };
+        } else {
+          menu.style.display = 'none';
+        }
+      }
+    }
+
+  })(window, document);
+</script>
+
+  
+  <script>
+    var _hmt = _hmt || [];
+    (function () {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?f290e5fbd596aedbb751f38a7d377f48";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  
+<script>
+  (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+          bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      }
+      else {
+          bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+  })();
+</script>
+
+
+</body>
+</html>

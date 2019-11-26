@@ -1,0 +1,390 @@
+
+<!DOCTYPE html>
+<html lang="">
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#202020">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+  
+  
+    <meta name="keywords" content="移动安全,好莱坞艳照门,同源策略,">
+  
+
+  
+    <meta name="description" content="Fooying&#39;s Blog">
+  
+  
+  
+  <link rel="icon" type="image/x-icon" href="/images/footer-logo.png">
+  
+  <title>最近移动安全三两事 [ Fooying ]</title>
+  
+    <!-- stylesheets list from config.yml -->
+    
+      <link rel="stylesheet" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css">
+    
+      <link rel="stylesheet" href="/css/xoxo.css">
+    
+  
+</head>
+
+
+<body>
+  <div class="nav-container">
+    <nav class="home-menu pure-menu pure-menu-horizontal">
+  <a class="pure-menu-heading" href="/">
+    
+    <span class="title" style="text-transform:none">Fooying</span>
+  </a>
+
+  <ul class="pure-menu-list clearfix">
+      
+          
+            
+              <li class="pure-menu-item"><a href="/" class="pure-menu-link">首页</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
+            
+              <a href="#" id="post" class="pure-menu-link">文章</a>
+              <ul class="pure-menu-children">
+              
+                  
+                    <li class="pure-menu-item"><a href="/categories" style="color:#202020;" class="pure-menu-link">分类</a></li>
+                  
+              
+                  
+                    <li class="pure-menu-item"><a href="/archives" style="color:#202020;" class="pure-menu-link">归档</a></li>
+                  
+              
+                  
+                    <li class="pure-menu-item"><a href="/tags" style="color:#202020;" class="pure-menu-link">标签</a></li>
+                  
+              
+              </ul>
+            </li>
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/paper" class="pure-menu-link">Papers</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/project" class="pure-menu-link">项目</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/activity" class="pure-menu-link">动态</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/search" class="pure-menu-link">搜索</a></li>
+            
+          
+      
+  </ul>
+   
+</nav>
+
+  </div>
+
+  <div class="container" id="content-outer">
+    <div class="inner" id="content-inner">
+      <div class="post-container">
+  <article class="post" id="post">
+    <header class="post-header text-center">
+      <h1 class="title">
+        最近移动安全三两事
+      </h1>
+      <span>
+        
+        <time class="time" datetime="2014-09-02T15:29:18.000Z">
+        2014-09-02
+      </time>
+        
+      </span>
+      <span class="slash">/</span>
+      <span class="post-meta">
+      <span class="post-tags">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/同源策略/">同源策略</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/好莱坞艳照门/">好莱坞艳照门</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/移动安全/">移动安全</a></li></ul>
+      </span>
+    </span>
+      <span class="slash">/</span>
+      <span class="read">
+      <span id="busuanzi_value_page_pv"></span> 点击
+    </span>
+      <span class="slash">/</span>
+      <span class="read">阅读耗时 9 分钟</span>
+    </header>
+
+    <div class="post-content">
+      <p>中秋马上到了，先预祝大家中秋快乐。</p>
+<p>估计这两天大家都在求视频和照片的下载地址，源于好莱坞艳照门事件。</p>
+<p>今天一则近百名好莱坞女星 iCloud 账户遭黑客攻击导致裸照泄露的新闻将 iCloud 的安全推倒风口浪尖，其中泄露的女明星包括 Jennifer Lawrence（詹妮弗·劳伦斯）、Kirsten Dunst（克里斯丁·邓斯特）、Jennifer Lopez（珍妮弗·洛佩兹）、歌手Rihanna（蕾哈娜）、Scarlett Johansson（斯嘉丽·约翰逊）等等。</p>
+<p>相信很多同学已经看过这些照片和视频了，我就不多加介绍了，然后大家也别求种子啥的，这个肯定是木有的（/抠鼻）。</p>
+<a id="more"></a>
+<p>又是一件与个人隐私安全密切相关的事件，事件我就变多介绍了，来谈谈事件背后的漏洞，缘于苹果官方对于iCloud帐户的暴力破解的限制存在疏漏导致可以帐户可以被暴力破解，而流传出来的照片就是来自于此。</p>
+<p>估计经过媒体的宣传和网络热炒，苹果官方反正是要背全黑锅了，管你用户密码太简单容易破解还是其他的，反正就是你没做好安全措施。哈哈，不多做评价，这种东西本来就很难防范，比如我设置个字母+数字+特殊字符+大小写，然后足够的长度，你给我破解试试，当然这么说不是排除苹果的原因，只是希望任何一件安全事件都不要被夸大，当然这个事件因为牵扯到明星，又是苹果公司，所以影响就大了，这个事件不做评价，大家各看各的，各有各观点。</p>
+<p>附上破解脚本一份，<a href="https://github.com/hackappcom/ibrute" target="_blank" rel="noopener">hackappcom/ibrute · GitHub</a>，搞开发的同学应该一看就看得懂代码，代码很简单，可以了解下漏洞，不要用来做坏事（今天测试了下，是可以成功的）。</p>
+<p>第二件事就是安卓浏览器同源策略绕过。</p>
+<p>可能根据上面那句话，大家不知道是什么情况，简单的说这是一个UXSS漏洞。这个事说来还挺碰巧的，因为有同学问我UXSS，于是就想着写篇UXSS的介绍文章，然后在找相关资料和案例的时候（这点表示国内基本没资料。。。）正好就找到了这个漏洞的介绍文章。</p>
+<p>原文链接： <a href="http://www.rafayhackingarticles.net/2014/08/android-browser-same-origin-policy.html" target="_blank" rel="noopener">http://www.rafayhackingarticles.net/2014/08/android-browser-same-ori    gin-policy.html</a></p>
+<p>同源策略的话，大概介绍下，看过COS的《web前端黑客技术解密》的同学应该在书的第一章就可以看到介绍，cos在书里比喻成楚河汉界，大家可以去看看。我简单的解释下，因为有这个同源策略的存在，那么网站http://a.com就只能读取自己的东西，比如会话信息，而不能去读取<code>http://b.com</code>的会话信息，当然，对<code>http://b.com</code>、<code>http://c.com</code>都是同理的。</p>
+<p>然后再来介绍下UXSS，对于常见XSS可能大家稍微有点了解，就是网站存在漏洞，可以被跨站，可能大家最熟悉的就是弹个框啥的，是否只能弹个窗啥的我就不多做解释，知乎上正好有人提问 <a href="http://www.zhihu.com/question/24918141" target="_blank" rel="noopener">http://www.zhihu.com/question/24918141</a>。</p>
+<p>而UXSS与普通XSS有什么区别？简单的说，普通XSS需要网站本身存在漏洞，而UXSS叫做通用跨站脚本攻击，利用的是浏览器本身或者浏览器扩展程序的漏洞，不需要网站本身存在漏洞也可以触发漏洞，而怎么利用漏洞等就与普通XSS没什么区别了。</p>
+<p>看一张图，今天测试的图<br>
+<img src="/images/post/some-mobile-security-things-recently/1.jpg" alt></p>
+<p>这个是我今天测试这个漏洞的截图。这个截图大家可以看到百度弹了cookie，但是这并不是我挖到了百度首页的XSS漏洞，而是利用刚才介绍的浏览器的漏洞来实现的。讲到这里大家应该明白UXSS是什么了，更多的可以看我昨天的博文通用跨站脚本攻击(UXSS)</p>
+<p>大家可以用我构造的页面测试下<code>http://0xsafe.org/x.html</code>，通过指定版本的安卓浏览器进行访问或者QQ、微信等直接访问也是可以的。</p>
+<p>根据介绍这个漏洞是因为URL解析器对空字符的不正确处理导致的（下文poc中的u0000）。</p>
+<p>poc：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;iframe name=&quot;x&quot; src=&quot;百度一下，你就知道&quot; onload=&quot;window.open(&apos;u0000javascript:alert(document.cookie)&apos;,&apos;x&apos;)&quot; &gt;</span><br></pre></td></tr></table></figure>
+<p>其他的就不多做介绍了，讲下使用对应版本安卓系统的同学如何防范该问题，最简单的一点：</p>
+<p>不管是QQ、微信或者其他渠道发送的可疑链接都不要去点击（QQ和微信点击链接进行页面访问实际上通俗的讲就是内嵌浏览器，所以性质是一样的）</p>
+<p>坐等更新就好。</p>
+<p>然后针对iCloud的问题，官方说修复了，如果你实在不放心，不管官方有没有修复，最简单的方式：</p>
+<p>将密码设置的足够强壮！</p>
+
+    </div>
+
+  </article>
+  <div class="toc-container">
+    
+
+  </div>
+</div>
+<div class="copyright">
+    <span>本作品采用</span>
+    <a href="https://creativecommons.org/licenses/by/4.0/">知识共享署名 4.0 国际许可协议</a>
+    <span>进行许可。 转载时请注明原文链接。</span>
+</div>
+
+
+  
+    <div class="post-nav">
+      <div class="post-nav-item post-nav-next">
+        
+          <span>〈 </span>
+          <a href="/uxss/" rel="next" title="通用跨站脚本攻击(UXSS)">
+          通用跨站脚本攻击(UXSS)
+          </a>
+        
+      </div>
+  
+      <div class="post-nav-item post-nav-prev">
+          
+          <a href="/sobug-experience/" rel="prev" title="众测之sobug的体验">
+            众测之sobug的体验
+          </a>
+          <span>〉</span>
+        
+      </div>
+    </div>
+  
+
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <div id="gitalk-container"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script type="text/javascript">
+        var gitalk = new Gitalk({
+            clientID: 'fa567664f6bdb5976298',
+            clientSecret: 'ee096f560d4360445220f5063af3bf6e4a8ba8e5',
+            id: window.location.pathname,
+            repo: 'fooying_blog',
+            owner: 'fooying',
+            admin: 'fooying'
+        })
+        gitalk.render('gitalk-container')
+    </script>
+
+
+
+    </div>
+
+    
+
+  </div>
+  <footer class="footer text-center">
+    <div id="bottom-inner">
+        <a class="bottom-item" href="https://github.com/fooying" target="_blank">GitHub</a> |
+        <a class="bottom-item" href="/links">友情链接</a> |
+        <a class="bottom-item" href="https://hexo.io" target="_blank">Powered by hexo</a> |
+        <a class="bottom-item" href="https://github.com/fooying/hexo-theme-xoxo-plus" target="_blank">Theme xoxo-plus</a> |
+        <a class="bottom-item" href="/atom.xml">订阅</a>
+    </div>
+</footer>
+
+  
+
+<script>
+  (function(window, document, undefined) {
+
+    var timer = null;
+
+    function returnTop() {
+      cancelAnimationFrame(timer);
+      timer = requestAnimationFrame(function fn() {
+        var oTop = document.body.scrollTop || document.documentElement.scrollTop;
+        if (oTop > 0) {
+          document.body.scrollTop = document.documentElement.scrollTop = oTop - 50;
+          timer = requestAnimationFrame(fn);
+        } else {
+          cancelAnimationFrame(timer);
+        }
+      });
+    }
+
+    var hearts = [];
+    window.requestAnimationFrame = (function() {
+      return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function(callback) {
+          setTimeout(callback, 1000 / 60);
+        }
+    })();
+    init();
+
+    function init() {
+      css(".heart{z-index:9999;width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: '';width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: absolute;}.heart:after{top: -5px;}.heart:before{left: -5px;}");
+      attachEvent();
+      gameloop();
+      addMenuEvent();
+    }
+
+    function gameloop() {
+      for (var i = 0; i < hearts.length; i++) {
+        if (hearts[i].alpha <= 0) {
+          document.body.removeChild(hearts[i].el);
+          hearts.splice(i, 1);
+          continue;
+        }
+        hearts[i].y--;
+        hearts[i].scale += 0.004;
+        hearts[i].alpha -= 0.013;
+        hearts[i].el.style.cssText = "left:" + hearts[i].x + "px;top:" + hearts[i].y + "px;opacity:" + hearts[i].alpha + ";transform:scale(" + hearts[i].scale + "," + hearts[i].scale + ") rotate(45deg);background:" + hearts[i].color;
+      }
+      requestAnimationFrame(gameloop);
+    }
+
+    /**
+     * 给logo设置点击事件
+     * 
+     * - 回到顶部
+     * - 出现爱心
+     */
+    function attachEvent() {
+      var old = typeof window.onclick === "function" && window.onclick;
+      var logo = document.getElementById("logo");
+      if (logo) {
+        logo.onclick = function(event) {
+          returnTop();
+          old && old();
+          createHeart(event);
+        }
+      }
+      
+    }
+
+    function createHeart(event) {
+      var d = document.createElement("div");
+      d.className = "heart";
+      hearts.push({
+        el: d,
+        x: event.clientX - 5,
+        y: event.clientY - 5,
+        scale: 1,
+        alpha: 1,
+        color: randomColor()
+      });
+      document.body.appendChild(d);
+    }
+
+    function css(css) {
+      var style = document.createElement("style");
+      style.type = "text/css";
+      try {
+        style.appendChild(document.createTextNode(css));
+      } catch (ex) {
+        style.styleSheet.cssText = css;
+      }
+      document.getElementsByTagName('head')[0].appendChild(style);
+    }
+
+    function randomColor() {
+      // return "rgb(" + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + ")";
+      return "#F44336";
+    }
+
+    function addMenuEvent() {
+      var menu = document.getElementById('menu-main-post');
+      if (menu) {
+        var toc = document.getElementById('toc');
+        if (toc) {
+          menu.onclick = function() {
+            if (toc) {
+              if (toc.style.display == 'block') {
+                toc.style.display = 'none';
+              } else {
+                toc.style.display = 'block';
+              }
+            }
+          };
+        } else {
+          menu.style.display = 'none';
+        }
+      }
+    }
+
+  })(window, document);
+</script>
+
+  
+  <script>
+    var _hmt = _hmt || [];
+    (function () {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?f290e5fbd596aedbb751f38a7d377f48";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  
+<script>
+  (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+          bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      }
+      else {
+          bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+  })();
+</script>
+
+
+</body>
+</html>

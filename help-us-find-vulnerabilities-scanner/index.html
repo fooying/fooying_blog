@@ -1,0 +1,392 @@
+
+<!DOCTYPE html>
+<html lang="">
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#202020">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+  
+  
+    <meta name="keywords" content="扫描器,找漏洞,漏扫,">
+  
+
+  
+    <meta name="description" content="Fooying&#39;s Blog">
+  
+  
+  
+  <link rel="icon" type="image/x-icon" href="/images/footer-logo.png">
+  
+  <title>帮我们找漏洞的扫描器 [ Fooying ]</title>
+  
+    <!-- stylesheets list from config.yml -->
+    
+      <link rel="stylesheet" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css">
+    
+      <link rel="stylesheet" href="/css/xoxo.css">
+    
+  
+</head>
+
+
+<body>
+  <div class="nav-container">
+    <nav class="home-menu pure-menu pure-menu-horizontal">
+  <a class="pure-menu-heading" href="/">
+    
+    <span class="title" style="text-transform:none">Fooying</span>
+  </a>
+
+  <ul class="pure-menu-list clearfix">
+      
+          
+            
+              <li class="pure-menu-item"><a href="/" class="pure-menu-link">首页</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
+            
+              <a href="#" id="post" class="pure-menu-link">文章</a>
+              <ul class="pure-menu-children">
+              
+                  
+                    <li class="pure-menu-item"><a href="/categories" style="color:#202020;" class="pure-menu-link">分类</a></li>
+                  
+              
+                  
+                    <li class="pure-menu-item"><a href="/archives" style="color:#202020;" class="pure-menu-link">归档</a></li>
+                  
+              
+                  
+                    <li class="pure-menu-item"><a href="/tags" style="color:#202020;" class="pure-menu-link">标签</a></li>
+                  
+              
+              </ul>
+            </li>
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/paper" class="pure-menu-link">Papers</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/project" class="pure-menu-link">项目</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/activity" class="pure-menu-link">动态</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/search" class="pure-menu-link">搜索</a></li>
+            
+          
+      
+  </ul>
+   
+</nav>
+
+  </div>
+
+  <div class="container" id="content-outer">
+    <div class="inner" id="content-inner">
+      <div class="post-container">
+  <article class="post" id="post">
+    <header class="post-header text-center">
+      <h1 class="title">
+        帮我们找漏洞的扫描器
+      </h1>
+      <span>
+        
+        <time class="time" datetime="2014-05-24T09:43:04.000Z">
+        2014-05-24
+      </time>
+        
+      </span>
+      <span class="slash">/</span>
+      <span class="post-meta">
+      <span class="post-tags">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/扫描器/">扫描器</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/找漏洞/">找漏洞</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/漏扫/">漏扫</a></li></ul>
+      </span>
+    </span>
+      <span class="slash">/</span>
+      <span class="read">
+      <span id="busuanzi_value_page_pv"></span> 点击
+    </span>
+      <span class="slash">/</span>
+      <span class="read">阅读耗时 9 分钟</span>
+    </header>
+
+    <div class="post-content">
+      <p>刚跟COS读者群的一个自称是外国人的的读者聊完天。问我是不是黑客，然后想学黑客，我居然用我那蹩脚的英语基本跟他聊了半天，各种鼓励。不管是否是真的外国人，瞬间觉得我人生格调变高了，也惊叹cos的粉丝都有外国人了。</p>
+<p>其实看到有个外国人发消息给我，第一时间觉得是装的，来社工的，后面聊了下感觉不像是装的，不过也没聊任何感觉像是社工相关的话题，他是不是装的就无所谓，没聊到相关隐私的问题，哈哈（我发完微博发现大家意识都很好，第一想到的就是社工和钓鱼，也可能我听众和关注的都是搞安全的）。</p>
+<p>每次开题前总要与大家闲扯下，哈哈。</p>
+<p>来北京有一两个礼拜了，现在在公司做的是公司Web漏洞检测引擎的开发工作，安全与开发相结合，自己觉得挺喜欢的。扯多了，做Web漏洞检测引擎的工作，所以自己对于这边多多少少做了一些功课，所以今天来与大家聊聊这方面的话题，如果有不对的观点欢迎大家指出（下面讲到扫描器都是讲Web漏洞扫描器）。</p>
+<a id="more"></a>
+<p>先来给个专业的概念把，嗯，不说我解释的，也是网上找的，哈哈。</p>
+<blockquote>
+<p>漏洞扫描是指基于漏洞数据库，通过扫描等手段对指定的远程或者本地计算机系统的安全脆弱性进行检测，发现可利用的漏洞的一种安全检测（渗透攻击）行为。</p>
+</blockquote>
+<p>不知道大家都用过什么扫描器？</p>
+<p>有同学会问，啊D漏洞注入工具、HDSI算吗？穿山甲、JSky是吗？我觉得都是。</p>
+<p>可能有的同学又会说，啊D、HDSI、穿山甲更偏向是攻击测试方面，这些我们下文再细细讨论。</p>
+<p>先来说说一个话题，怎么分类？</p>
+<p>Web漏洞扫描器，在我看来可以分为两种情况，一种是比较通用型的，比如Nessus，可以检测大部分类型的漏洞，另一种针对型，比如SQLmap,针对SQL注入的漏洞检测。然后，再或者，纯验证型和利用性，这就如POC与EXP的区别，EXP在POC的基础上进一步利用漏洞进行利用，SQLMAP其实就属于一种利用型，最近有在看w3af的代码，它就属于两种都有，不同的插件。</p>
+<p>扫描器又是如何扫描到漏洞的？扫描器一般有几个关键部分，一个是爬虫，一个是核心检测。大部分的扫描器对于不同类型的扫描，如SQL注入、XSS等等，都是采用不同插件的形式。</p>
+<p>整个扫描流程应该大概是这样一个过程：</p>
+<ol>
+<li>收集目标站点的URL，也可能是单点的URL</li>
+<li>把URL给各个检测组件进行检测</li>
+<li>结果收集</li>
+</ol>
+<p>中间可能穿插着一些流程控制等等。</p>
+<p>一个大概的流程，关于漏洞扫描的能力，大家可能已经注意到点了，一个是对URL的收集，另外一个就是不同漏洞类型的检测组件的能力。</p>
+<p>后者我就不说了，涉及到东西有点多，比如XSS的检测，说白了就是规则，你的规则够全够准，就检测的更准，但怎样算够好？这个没法说清楚，靠实践。</p>
+<p>然后网址的收集，目前主流的扫描器可能有两种方式，一种就是利用爬虫分析页面收集URL，另外一种就是代理的模式，各有优势。爬虫可能大家比较好理解，代理的模式，不知道大家用过Fiddler没，有个Watch的插件，是检测XSS的，大概原理就是比如我开启Fiddler后，对浏览器设置了代理，那么我用浏览器做的任何访问都通过Fiddler的代理，就被捕获各种URL的访问，然后Wathc就对这些URL进行检测。</p>
+<p>怎样去评价一个扫描器的好坏？最直接的方式，是否收集的URL够全，检测的漏洞的误报率和漏报率，用专业术语就是召回率和精度，具体什么意思，大家百度下就懂了，我也解释不清楚，其实咱们屌丝用误报率和漏报率就够了，简单明了。</p>
+<p>其实如何快速找到漏洞？单单靠扫描器可能容易找到一些通用的漏洞，往往其实是要根据一些个人经验和猥琐的技巧，毕竟市面上的那些扫描器其实要说你用，我也在用，为什么有的人找的洞多？有很多道道。</p>
+<p>其实之前一直有想着自己写一款自用扫描器的想法，不过现在在负责公司的漏洞扫描器，就不适合自己搞一个了。我觉得我自己应该就是一个安全与开发结合的路线，这样走下去挺好的。</p>
+
+    </div>
+
+  </article>
+  <div class="toc-container">
+    
+
+  </div>
+</div>
+<div class="copyright">
+    <span>本作品采用</span>
+    <a href="https://creativecommons.org/licenses/by/4.0/">知识共享署名 4.0 国际许可协议</a>
+    <span>进行许可。 转载时请注明原文链接。</span>
+</div>
+
+
+  
+    <div class="post-nav">
+      <div class="post-nav-item post-nav-next">
+        
+          <span>〈 </span>
+          <a href="/safety-need-passion/" rel="next" title="安全需要激情">
+          安全需要激情
+          </a>
+        
+      </div>
+  
+      <div class="post-nav-item post-nav-prev">
+          
+          <a href="/qq-group-xss/" rel="prev" title="QQ群弹了个窗">
+            QQ群弹了个窗
+          </a>
+          <span>〉</span>
+        
+      </div>
+    </div>
+  
+
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <div id="gitalk-container"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script type="text/javascript">
+        var gitalk = new Gitalk({
+            clientID: 'fa567664f6bdb5976298',
+            clientSecret: 'ee096f560d4360445220f5063af3bf6e4a8ba8e5',
+            id: window.location.pathname,
+            repo: 'fooying_blog',
+            owner: 'fooying',
+            admin: 'fooying'
+        })
+        gitalk.render('gitalk-container')
+    </script>
+
+
+
+    </div>
+
+    
+
+  </div>
+  <footer class="footer text-center">
+    <div id="bottom-inner">
+        <a class="bottom-item" href="https://github.com/fooying" target="_blank">GitHub</a> |
+        <a class="bottom-item" href="/links">友情链接</a> |
+        <a class="bottom-item" href="https://hexo.io" target="_blank">Powered by hexo</a> |
+        <a class="bottom-item" href="https://github.com/fooying/hexo-theme-xoxo-plus" target="_blank">Theme xoxo-plus</a> |
+        <a class="bottom-item" href="/atom.xml">订阅</a>
+    </div>
+</footer>
+
+  
+
+<script>
+  (function(window, document, undefined) {
+
+    var timer = null;
+
+    function returnTop() {
+      cancelAnimationFrame(timer);
+      timer = requestAnimationFrame(function fn() {
+        var oTop = document.body.scrollTop || document.documentElement.scrollTop;
+        if (oTop > 0) {
+          document.body.scrollTop = document.documentElement.scrollTop = oTop - 50;
+          timer = requestAnimationFrame(fn);
+        } else {
+          cancelAnimationFrame(timer);
+        }
+      });
+    }
+
+    var hearts = [];
+    window.requestAnimationFrame = (function() {
+      return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function(callback) {
+          setTimeout(callback, 1000 / 60);
+        }
+    })();
+    init();
+
+    function init() {
+      css(".heart{z-index:9999;width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: '';width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: absolute;}.heart:after{top: -5px;}.heart:before{left: -5px;}");
+      attachEvent();
+      gameloop();
+      addMenuEvent();
+    }
+
+    function gameloop() {
+      for (var i = 0; i < hearts.length; i++) {
+        if (hearts[i].alpha <= 0) {
+          document.body.removeChild(hearts[i].el);
+          hearts.splice(i, 1);
+          continue;
+        }
+        hearts[i].y--;
+        hearts[i].scale += 0.004;
+        hearts[i].alpha -= 0.013;
+        hearts[i].el.style.cssText = "left:" + hearts[i].x + "px;top:" + hearts[i].y + "px;opacity:" + hearts[i].alpha + ";transform:scale(" + hearts[i].scale + "," + hearts[i].scale + ") rotate(45deg);background:" + hearts[i].color;
+      }
+      requestAnimationFrame(gameloop);
+    }
+
+    /**
+     * 给logo设置点击事件
+     * 
+     * - 回到顶部
+     * - 出现爱心
+     */
+    function attachEvent() {
+      var old = typeof window.onclick === "function" && window.onclick;
+      var logo = document.getElementById("logo");
+      if (logo) {
+        logo.onclick = function(event) {
+          returnTop();
+          old && old();
+          createHeart(event);
+        }
+      }
+      
+    }
+
+    function createHeart(event) {
+      var d = document.createElement("div");
+      d.className = "heart";
+      hearts.push({
+        el: d,
+        x: event.clientX - 5,
+        y: event.clientY - 5,
+        scale: 1,
+        alpha: 1,
+        color: randomColor()
+      });
+      document.body.appendChild(d);
+    }
+
+    function css(css) {
+      var style = document.createElement("style");
+      style.type = "text/css";
+      try {
+        style.appendChild(document.createTextNode(css));
+      } catch (ex) {
+        style.styleSheet.cssText = css;
+      }
+      document.getElementsByTagName('head')[0].appendChild(style);
+    }
+
+    function randomColor() {
+      // return "rgb(" + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + ")";
+      return "#F44336";
+    }
+
+    function addMenuEvent() {
+      var menu = document.getElementById('menu-main-post');
+      if (menu) {
+        var toc = document.getElementById('toc');
+        if (toc) {
+          menu.onclick = function() {
+            if (toc) {
+              if (toc.style.display == 'block') {
+                toc.style.display = 'none';
+              } else {
+                toc.style.display = 'block';
+              }
+            }
+          };
+        } else {
+          menu.style.display = 'none';
+        }
+      }
+    }
+
+  })(window, document);
+</script>
+
+  
+  <script>
+    var _hmt = _hmt || [];
+    (function () {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?f290e5fbd596aedbb751f38a7d377f48";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  
+<script>
+  (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+          bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      }
+      else {
+          bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+  })();
+</script>
+
+
+</body>
+</html>

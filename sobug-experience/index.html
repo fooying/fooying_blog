@@ -1,0 +1,403 @@
+
+<!DOCTYPE html>
+<html lang="">
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#202020">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+  
+  
+    <meta name="keywords" content="sobug,360刃甲,wooyun众测,众测,威客众测,安全众测平台,漏洞盒子,">
+  
+
+  
+    <meta name="description" content="Fooying&#39;s Blog">
+  
+  
+  
+  <link rel="icon" type="image/x-icon" href="/images/footer-logo.png">
+  
+  <title>众测之sobug的体验 [ Fooying ]</title>
+  
+    <!-- stylesheets list from config.yml -->
+    
+      <link rel="stylesheet" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css">
+    
+      <link rel="stylesheet" href="/css/xoxo.css">
+    
+  
+</head>
+
+
+<body>
+  <div class="nav-container">
+    <nav class="home-menu pure-menu pure-menu-horizontal">
+  <a class="pure-menu-heading" href="/">
+    
+    <span class="title" style="text-transform:none">Fooying</span>
+  </a>
+
+  <ul class="pure-menu-list clearfix">
+      
+          
+            
+              <li class="pure-menu-item"><a href="/" class="pure-menu-link">首页</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
+            
+              <a href="#" id="post" class="pure-menu-link">文章</a>
+              <ul class="pure-menu-children">
+              
+                  
+                    <li class="pure-menu-item"><a href="/categories" style="color:#202020;" class="pure-menu-link">分类</a></li>
+                  
+              
+                  
+                    <li class="pure-menu-item"><a href="/archives" style="color:#202020;" class="pure-menu-link">归档</a></li>
+                  
+              
+                  
+                    <li class="pure-menu-item"><a href="/tags" style="color:#202020;" class="pure-menu-link">标签</a></li>
+                  
+              
+              </ul>
+            </li>
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/paper" class="pure-menu-link">Papers</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/project" class="pure-menu-link">项目</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/activity" class="pure-menu-link">动态</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/search" class="pure-menu-link">搜索</a></li>
+            
+          
+      
+  </ul>
+   
+</nav>
+
+  </div>
+
+  <div class="container" id="content-outer">
+    <div class="inner" id="content-inner">
+      <div class="post-container">
+  <article class="post" id="post">
+    <header class="post-header text-center">
+      <h1 class="title">
+        众测之sobug的体验
+      </h1>
+      <span>
+        
+        <time class="time" datetime="2014-09-03T17:27:36.000Z">
+        2014-09-04
+      </time>
+        
+      </span>
+      <span class="slash">/</span>
+      <span class="post-meta">
+      <span class="post-tags">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/360刃甲/">360刃甲</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sobug/">sobug</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/wooyun众测/">wooyun众测</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/众测/">众测</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/威客众测/">威客众测</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/安全众测平台/">安全众测平台</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/漏洞盒子/">漏洞盒子</a></li></ul>
+      </span>
+    </span>
+      <span class="slash">/</span>
+      <span class="read">
+      <span id="busuanzi_value_page_pv"></span> 点击
+    </span>
+      <span class="slash">/</span>
+      <span class="read">阅读耗时 20 分钟</span>
+    </header>
+
+    <div class="post-content">
+      <p>最近比较忙，每天差不多2、3点才睡觉，除了工作的事，还在整理自己的一些东西，包括一些想法、网站以及自己的知识点，不过还是抽出一些时间体验并且真正的以白帽子的身份参加了下sobug众测的两个项目，今天来跟大家聊聊。（如果不懂众测是什么的同学可以先百度了解下）</p>
+<p>真正认识冷总应该在今年参加syscan360会议的那会，冷总加了我微信，然后本来要准备见面聊聊天，前后两三次都不正好，没聊成，不过syscan360当天晚上微信上与冷总聊了众测以及sobug的一些自己的想法，相聊盛欢也不知不觉到了2、3点，难得的没有做其他事，之后也想着找时间正正式式参加下，所以就有了后面的参与和今天这篇文章。</p>
+<p>转眼从刚开始的乌云众测到现在，众测平台有乌云众测、sobug、漏洞盒子、360刃甲以及威客众测，算算也有5之数了。虽然都注册了帐号，但是其他家的众测倒是没真正的参与过，就不多做评价，只聊聊关于众测、关于sobug的一些事。   闲话扯了一堆，下面进入正题。</p>
+<a id="more"></a>
+<p><img src="/images/post/sobug-experience/111.jpg" alt="sobug"></p>
+<h3 id="互联网安全产品"><a class="markdownIt-Anchor" href="#互联网安全产品"></a> 互联网安全产品</h3>
+<p>大家可以发现题图，我用了三句话，最底下的是一款互联网安全产品。记得跟冷总聊天的时候，印象最深刻的就是冷总告诉我这是一款互联网产品。既然是互联网产品，抛开其他不说，来谈谈用户体验问题。从注册登陆到参与项目以及提交项目漏洞的过程中，整体体验来说还是挺顺的，只不过在白帽子与审核人员及厂商的沟通上缺少有效的方式，只能通过报告页评论，然后评论没有提示，还有一些细节的问题，不过听小智说都已经处理，在下个版本发布，坐等更新。</p>
+<p>除了因为是互联网产品，要讲究用户体验，同时这个互联网产品前面还有个修饰词“安全”，所以如果保证白帽子和厂商的隐私安全也是要讲究的，很欣喜的看到sobug使用的是ssl加密连接。</p>
+<p>其他方面，到目前为止，稳定性、访问速度等均觉得不错，平台的UI设计方面也清新怡人，是我喜欢的风格，哈哈。</p>
+<h3 id="漏洞研究提高互联网安全"><a class="markdownIt-Anchor" href="#漏洞研究提高互联网安全"></a> 漏洞研究提高互联网安全</h3>
+<p>其实对于所有的众测平台来说，都存在一个信任的问题。厂商如何信任平台，信任平台上的白帽子能够提交漏洞，而不会在自己为漏洞买单的同时转手把漏洞发出去等等。</p>
+<p>作为一个白帽子，参加众测平台，厂商如何信任平台其实不是我所关心的，换句话说，应该更关心的是信任情况带来另一层影响，有项目可以参与，参与的项目给足够的奖金，这才是参加众测的白帽子关心的问题。</p>
+<p>根据sobug上显示的情况，目前看来应该还算是比较良好的，第一名的神奇四侠大牛已经获得了42000的奖金（似乎有部分奖金未刷新显示），累计106个合作厂商，16个项目，1450个bug，项目预算总额160w多(实际发放的奖金肯定不是这么多)。其实总的发了多少、多少个洞啥的我都不关心，就我个人的体验来说，在参与某大型彩票网站项目快结束的时候，还没结束，马上又有某大型交易网站的项目，就是有项目接着参与，这个是不错的。<br>
+不过还存在一个问题，那就是僧多肉少，因为是大家同时参加众测，在一个项目开始后，基本上如果手慢，那么那些比较好发现的漏洞基本就已经被人提交了，这里不得不提sobug的两个个功能，在提交漏洞的时候要求填写目标页面链接，然后会提示是否重复，当然并不能100%的正确识别，毕竟只是根据链接做处理，这样让白帽子心里有数可能有人提交了；同时在提交漏洞后审核被忽略的情况还可以查看重复目标漏洞的详情，让白帽子自己可以对比确认，我觉得这两个功能着实不错。不过这引出另一个问题，重复意味着忽略，意味着做无用功，会打击积极性，当然我也木有想到好的处理方法，只能说你够强大，手够快，要嘛在别人提交前提交，要嘛发现一些别人发现不了的漏洞，仅此而已。</p>
+<h3 id="连接安全专家与厂商"><a class="markdownIt-Anchor" href="#连接安全专家与厂商"></a> 连接安全专家与厂商</h3>
+<p>在我看来，做好这部分是最难的，两个项目过程中，我想应该就我提的问题、异议最多了。话说在看来，这些做CEO的同学们，特别是创业团队，特别喜欢大家有问题直接提给他们，所以我基本有啥觉得不正确不合理的就马上直接在群里噼里啪啦的反馈了，哈哈。</p>
+<p>从白帽子发现漏洞到提交漏洞，到漏洞审核，确定等级，沟通等级，确定奖励金额，整个过程我觉得是个坑，如何做好整个流程是对众测平台的一大考验啊。</p>
+<p>首先，一些厂商不收一些低等级的漏洞，那么漏洞的等级定位的差异是个问题，比如说厂商不要低危漏洞，但是我提交了一个我觉得是中危的漏洞，结果平台审核同学告诉我是低危的，而我坚持是中危，这又如何是好？</p>
+<p>其次，漏洞复现以及漏洞重复判断。提交那个大型交易网站漏洞的时候我就提交过一个被提示为重复而我认为不重复的洞，最终通过沟通得到确认，具体下面细说。</p>
+<p>第三，厂商对漏洞的定级。你认为高危的漏洞，到厂商那，他觉得没有影响数据啥的，应该降为低危，这又该如何？</p>
+<p>第四，奖金的评定，平台对于同一等级漏洞的奖金评定是在一个范围内，那么到底该给多少？</p>
+<p>还有一些其他的问题，我就不细说了，说说这四个大问题，其实主要就是认知的差异性，而导致认知不同的各种原因，比如技术程度不同等等。</p>
+<p>第一个问题，我觉得目前不仅是各个众测平台，包含各厂商安全应急响应平台，都一样，就是对漏洞的定级问题。包含sobug，我觉得给出的文档对于漏洞的定级还是过于简单和泛，漏洞的等级到底需要考虑影响程度吗？或者其他的？我觉得修订一份详细可查询参考的说明在出现认知差异时作为认定依据很有必要的。</p>
+<p>第二个问题，在参与大型交易网站项目的时候我提交过一个组合漏洞利用的报告，第一次被忽略了，说是重复了，于是我提出异议，我觉得我对于漏洞的利用的点是与重复漏洞完全不同的，重复漏洞只是单纯的提交了这样一个漏洞，我组合利用两个漏洞利用，达到的效果完全是不同的，最终的结果是由我提供详细的利用说明来交由厂商定夺。所以就扯到第三个问题。</p>
+<p>第三个问题，在我看来，因为厂商是出钱让白帽子找漏洞的，如果碰上无良厂商，他肯定是希望钱给的少比较好，那么如何才能钱给的比较少？就是被漏洞等级认定降低。当然，这只是个举例，还没碰到过这种厂商，最多的还是认知不同与厂商在对漏洞等级的认定存在差异，于是又回到第一个问题了。</p>
+<p>第四个问题，其实我还没经历这个步骤，但是在我看来与前三个问题是差不多的，认知不同。</p>
+<p>而作为一个众测平台，连接安全专家与厂商，如何个连接法？如何协调？这是一个很重要的环节，你不能损害厂商的利益，也不能让白帽子的劳动白费。在这点上，不知道其他众测平台怎么样，sobug在我看来还是不错的，反正我是问题最多的，提出异议最多的（我不是故意给冷总找茬的[抠鼻]），不管是冷总还是小智在与我沟通的过程中，尽管这是一件两头不是人的事，但是可以看的出sobug作为一个平台在坚持一些原则的同时在维护白帽子和厂商的利益，同时也在积极寻找方案解决这些问题，这个必须点赞。</p>
+<h3 id="问题"><a class="markdownIt-Anchor" href="#问题"></a> 问题</h3>
+<p>讲了一大堆估计大家认为我给sobug打广告来了，讲sobug这里好那里好，都不见讲问题。不急。</p>
+<p>其实就前面讲的，抛开平台的性质不说，整个平台在一些功能的使用上至少目前看来还是不够的，还是有许多的细节没处理，包括我觉得很重要的沟通的问题，仅仅只能在漏洞提交详情页进行针对评论，而且不再次打开页面不知道被回复了，这是个坑，还是需要优先处理的。然后比如说，漏洞列表没有筛选功能，全部漏洞一批列表列在那，就只有编号和标题等几个简单信息；再者项目列表与漏洞列表缺少关联，查看漏洞只能点“我的众测”进入查看所有自己提交的漏洞列表，而不能通过项目页点击进入查看该项目提交的漏洞；再者，提交漏洞，得在项目页点击进入查看项目详情，然后底部才有一个按钮显示“提交漏洞”，等等细节问题还是有待改进。</p>
+<p>其次，就像上面说的，漏洞分级提供的文档写的太泛了，对于漏洞分级等问题都是通过QQ上进行沟通，整个漏洞提交确认的流程还是有待优化，有些可以自动化的东西完全可以做成平台功能，全部靠人工交流比较费白帽子的时间，而且对平台的人力要求也比较高。</p>
+<p>另外，对于一些新的功能还是需要抓紧开发，跟冷总聊了挺多想法，不过目前有些都还没看到，还是有待继续努力。</p>
+<h3 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h3>
+<p>总的来说，就当时跟冷总聊的那些内容还是很期待在sobug上看到，包括现在已经看到的部分，希望sobug一步步按照自己的计划走好，祝sobug越来越好，然后在整个平台的用户体验和各种流程上也需要下一番功夫的。</p>
+
+    </div>
+
+  </article>
+  <div class="toc-container">
+    
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#互联网安全产品"><span class="toc-text"> 互联网安全产品</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#漏洞研究提高互联网安全"><span class="toc-text"> 漏洞研究提高互联网安全</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#连接安全专家与厂商"><span class="toc-text"> 连接安全专家与厂商</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#问题"><span class="toc-text"> 问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-text"> 总结</span></a></li></ol>
+  </div>
+
+
+  </div>
+</div>
+<div class="copyright">
+    <span>本作品采用</span>
+    <a href="https://creativecommons.org/licenses/by/4.0/">知识共享署名 4.0 国际许可协议</a>
+    <span>进行许可。 转载时请注明原文链接。</span>
+</div>
+
+
+  
+    <div class="post-nav">
+      <div class="post-nav-item post-nav-next">
+        
+          <span>〈 </span>
+          <a href="/some-mobile-security-things-recently/" rel="next" title="最近移动安全三两事">
+          最近移动安全三两事
+          </a>
+        
+      </div>
+  
+      <div class="post-nav-item post-nav-prev">
+          
+          <a href="/a-problem-of-windows-install-linux-virtual-machine-mapping-directory/" rel="prev" title="Windows安装Linux虚拟机映射目录的一个坑">
+            Windows安装Linux虚拟机映射目录的一个坑
+          </a>
+          <span>〉</span>
+        
+      </div>
+    </div>
+  
+
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <div id="gitalk-container"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script type="text/javascript">
+        var gitalk = new Gitalk({
+            clientID: 'fa567664f6bdb5976298',
+            clientSecret: 'ee096f560d4360445220f5063af3bf6e4a8ba8e5',
+            id: window.location.pathname,
+            repo: 'fooying_blog',
+            owner: 'fooying',
+            admin: 'fooying'
+        })
+        gitalk.render('gitalk-container')
+    </script>
+
+
+
+    </div>
+
+    
+
+  </div>
+  <footer class="footer text-center">
+    <div id="bottom-inner">
+        <a class="bottom-item" href="https://github.com/fooying" target="_blank">GitHub</a> |
+        <a class="bottom-item" href="/links">友情链接</a> |
+        <a class="bottom-item" href="https://hexo.io" target="_blank">Powered by hexo</a> |
+        <a class="bottom-item" href="https://github.com/fooying/hexo-theme-xoxo-plus" target="_blank">Theme xoxo-plus</a> |
+        <a class="bottom-item" href="/atom.xml">订阅</a>
+    </div>
+</footer>
+
+  
+
+<script>
+  (function(window, document, undefined) {
+
+    var timer = null;
+
+    function returnTop() {
+      cancelAnimationFrame(timer);
+      timer = requestAnimationFrame(function fn() {
+        var oTop = document.body.scrollTop || document.documentElement.scrollTop;
+        if (oTop > 0) {
+          document.body.scrollTop = document.documentElement.scrollTop = oTop - 50;
+          timer = requestAnimationFrame(fn);
+        } else {
+          cancelAnimationFrame(timer);
+        }
+      });
+    }
+
+    var hearts = [];
+    window.requestAnimationFrame = (function() {
+      return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function(callback) {
+          setTimeout(callback, 1000 / 60);
+        }
+    })();
+    init();
+
+    function init() {
+      css(".heart{z-index:9999;width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: '';width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: absolute;}.heart:after{top: -5px;}.heart:before{left: -5px;}");
+      attachEvent();
+      gameloop();
+      addMenuEvent();
+    }
+
+    function gameloop() {
+      for (var i = 0; i < hearts.length; i++) {
+        if (hearts[i].alpha <= 0) {
+          document.body.removeChild(hearts[i].el);
+          hearts.splice(i, 1);
+          continue;
+        }
+        hearts[i].y--;
+        hearts[i].scale += 0.004;
+        hearts[i].alpha -= 0.013;
+        hearts[i].el.style.cssText = "left:" + hearts[i].x + "px;top:" + hearts[i].y + "px;opacity:" + hearts[i].alpha + ";transform:scale(" + hearts[i].scale + "," + hearts[i].scale + ") rotate(45deg);background:" + hearts[i].color;
+      }
+      requestAnimationFrame(gameloop);
+    }
+
+    /**
+     * 给logo设置点击事件
+     * 
+     * - 回到顶部
+     * - 出现爱心
+     */
+    function attachEvent() {
+      var old = typeof window.onclick === "function" && window.onclick;
+      var logo = document.getElementById("logo");
+      if (logo) {
+        logo.onclick = function(event) {
+          returnTop();
+          old && old();
+          createHeart(event);
+        }
+      }
+      
+    }
+
+    function createHeart(event) {
+      var d = document.createElement("div");
+      d.className = "heart";
+      hearts.push({
+        el: d,
+        x: event.clientX - 5,
+        y: event.clientY - 5,
+        scale: 1,
+        alpha: 1,
+        color: randomColor()
+      });
+      document.body.appendChild(d);
+    }
+
+    function css(css) {
+      var style = document.createElement("style");
+      style.type = "text/css";
+      try {
+        style.appendChild(document.createTextNode(css));
+      } catch (ex) {
+        style.styleSheet.cssText = css;
+      }
+      document.getElementsByTagName('head')[0].appendChild(style);
+    }
+
+    function randomColor() {
+      // return "rgb(" + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + ")";
+      return "#F44336";
+    }
+
+    function addMenuEvent() {
+      var menu = document.getElementById('menu-main-post');
+      if (menu) {
+        var toc = document.getElementById('toc');
+        if (toc) {
+          menu.onclick = function() {
+            if (toc) {
+              if (toc.style.display == 'block') {
+                toc.style.display = 'none';
+              } else {
+                toc.style.display = 'block';
+              }
+            }
+          };
+        } else {
+          menu.style.display = 'none';
+        }
+      }
+    }
+
+  })(window, document);
+</script>
+
+  
+  <script>
+    var _hmt = _hmt || [];
+    (function () {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?f290e5fbd596aedbb751f38a7d377f48";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  
+<script>
+  (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+          bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      }
+      else {
+          bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+  })();
+</script>
+
+
+</body>
+</html>

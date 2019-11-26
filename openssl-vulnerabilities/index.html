@@ -1,0 +1,414 @@
+
+<!DOCTYPE html>
+<html lang="">
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#202020">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+  
+  
+    <meta name="keywords" content="漏洞,OpenSSL,SSL,安全协议,">
+  
+
+  
+    <meta name="description" content="Fooying&#39;s Blog">
+  
+  
+  
+  <link rel="icon" type="image/x-icon" href="/images/footer-logo.png">
+  
+  <title>当安全协议不安全了:OpenSSL漏洞 [ Fooying ]</title>
+  
+    <!-- stylesheets list from config.yml -->
+    
+      <link rel="stylesheet" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css">
+    
+      <link rel="stylesheet" href="/css/xoxo.css">
+    
+  
+</head>
+
+
+<body>
+  <div class="nav-container">
+    <nav class="home-menu pure-menu pure-menu-horizontal">
+  <a class="pure-menu-heading" href="/">
+    
+    <span class="title" style="text-transform:none">Fooying</span>
+  </a>
+
+  <ul class="pure-menu-list clearfix">
+      
+          
+            
+              <li class="pure-menu-item"><a href="/" class="pure-menu-link">首页</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
+            
+              <a href="#" id="post" class="pure-menu-link">文章</a>
+              <ul class="pure-menu-children">
+              
+                  
+                    <li class="pure-menu-item"><a href="/categories" style="color:#202020;" class="pure-menu-link">分类</a></li>
+                  
+              
+                  
+                    <li class="pure-menu-item"><a href="/archives" style="color:#202020;" class="pure-menu-link">归档</a></li>
+                  
+              
+                  
+                    <li class="pure-menu-item"><a href="/tags" style="color:#202020;" class="pure-menu-link">标签</a></li>
+                  
+              
+              </ul>
+            </li>
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/paper" class="pure-menu-link">Papers</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/project" class="pure-menu-link">项目</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/activity" class="pure-menu-link">动态</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/search" class="pure-menu-link">搜索</a></li>
+            
+          
+      
+  </ul>
+   
+</nav>
+
+  </div>
+
+  <div class="container" id="content-outer">
+    <div class="inner" id="content-inner">
+      <div class="post-container">
+  <article class="post" id="post">
+    <header class="post-header text-center">
+      <h1 class="title">
+        当安全协议不安全了:OpenSSL漏洞
+      </h1>
+      <span>
+        
+        <time class="time" datetime="2014-04-11T09:06:05.000Z">
+        2014-04-11
+      </time>
+        
+      </span>
+      <span class="slash">/</span>
+      <span class="post-meta">
+      <span class="post-tags">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenSSL/">OpenSSL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SSL/">SSL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/安全协议/">安全协议</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/漏洞/">漏洞</a></li></ul>
+      </span>
+    </span>
+      <span class="slash">/</span>
+      <span class="read">
+      <span id="busuanzi_value_page_pv"></span> 点击
+    </span>
+      <span class="slash">/</span>
+      <span class="read">阅读耗时 10 分钟</span>
+    </header>
+
+    <div class="post-content">
+      <p>今天是一个特别的日子，早上大家还在讨论XP停止服务的事，到处是相关的新闻和文章，到了下午，到处都是OpenSSL的漏洞消息了。</p>
+<a id="more"></a>
+<h3 id="openssl与ssl安全协议"><a class="markdownIt-Anchor" href="#openssl与ssl安全协议"></a> OpenSSL与SSL安全协议</h3>
+<p>什么是SSL安全协议，我记得在10年我写过一篇简单介绍的文章，小谈SSL安全协议（<a href="http://hi.baidu.com/fooying/item/2c4c407ee2acb1326cc37c74" target="_blank" rel="noopener">小谈SSL安全协议（原创）_Fooying_百度空间</a>），大家不凡可以看看，以前的文章，大家就不要笑话了。</p>
+<p>SSL，全称Secure Socket Layer，为Netscape所研发，用以保障在Internet上数据传输之安全，利用数据加密(Encryption)技术，可确保数据在网络上之传输过程中不会被截取及窃听。简单的说，就是加密传输的数据，避免被截取监听等。</p>
+<p>SSL应该是大家平时接触最多的安全协议了，大家可以看访问一些网址的时候，一般是http://开头，如果发现https://开头就是采用了SSL安全协议。比如，大家在登陆微信网页版的时候就可以看到：</p>
+<p><img src="/images/post/openssl-vulnerabilities/867cf064f75d86a3d1a9d94bcd436a30_hd.jpg" alt></p>
+<p>一般来说，比如nginx，可以通过以下方式就可以进行配置：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"># HTTPS server</span><br><span class="line">#</span><br><span class="line">server &#123;</span><br><span class="line">listen 443;</span><br><span class="line">server_name localhost;</span><br><span class="line"></span><br><span class="line">ssl on;</span><br><span class="line">ssl_certificate /opt/nginx/sslkey/server.crt;</span><br><span class="line">ssl_certificate_key /opt/nginx/sslkey/server.key;</span><br><span class="line"></span><br><span class="line">location / &#123;</span><br><span class="line">		root /home/workspace/;</span><br><span class="line">		index index.asp index.aspx;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>大家可以看到，监听的是443端口，然后通过ssl on;来开启,同时通过ssl_certificate和sl_certificate_key配置证书和key文件，具体的就不多解释了，大家可以自己搜索下。</p>
+<p>那么证书和key又是怎么一回事呢？接下来就要讲到OpenSSL了。</p>
+<p>进行过nginx编译的同学都知道，在编译nginx的时候，如果想让nginx支持开启SSL，那么必须加一个–with-http_ssl_module 的配置项。那么又何让服务器支持这个配置项呢？又如何生成nginx配置中SSL所需要的证书和key文件呢？都是源于OpenSSL（<a href="http://baike.baidu.com/link?url=AjYL3O0_mqKF1KkHsDB72HPm1tXGns9prJBVkefNKywDNtdMQSEFqJSMbY3Tjino" target="_blank" rel="noopener">openssl_百度百科</a>）。</p>
+<blockquote>
+<p>OpenSSL是一个强大的安全套接字层密码库，Apache使用它加密HTTPS，OpenSSH使用它加密SSH，但是，你不应该只将其作为一个库来使用，它还是一个多用途的、跨平台的密码工具。</p>
+</blockquote>
+<p>大家平时如果采用公私钥的方式连接服务器，也是需要用到OpenSSL的。简单的理解，OpenSSL是一个强大的支持库，更是一个强大的密码工具。虽然要支持SSL协议不一定得采用OpenSSL，但是基本大部分的都是采用OpenSSL。</p>
+<h3 id="心脏出血的openssl"><a class="markdownIt-Anchor" href="#心脏出血的openssl"></a> 心脏出血的OpenSSL</h3>
+<p>相信前面简单的介绍能让大家了解到OpenSSL的重要性，也明白了SSL协议是做什么的，那么大家应该就可以理解，本来采用SSL协议是为了数据传输的安全性，是为了更安全，但是OpenSSL的漏洞直接导致了本该是让为了更安全的设置变成了致命的危险。</p>
+<p>简单介绍下漏洞，这个漏洞是昨天国外的黑客曝光的，该漏洞可以获取HTTPS服务器的随机64K内存。这个漏洞被称为heartbleed，直译的话就是心脏出血。可能有部分同学没意识到这个64K有啥用错，读取内存又有啥用？</p>
+<p>贴几张图：</p>
+<p><img src="/images/post/openssl-vulnerabilities/0c829e6c9195216e4af9a348c1f15d18_hd.jpg" alt><img src="/images/post/openssl-vulnerabilities/9fe7d8fb806fc8998a1542b6b77c742e_hd.jpg" alt></p>
+<p>这是笔者利用poc进行的一些测试（测试poc：<a href="http://s3.jspenguin.org/ssltest.py" target="_blank" rel="noopener">hhttp://pan.baidu.com/s/1nt0T0d7</a>，直接python <a href="http://ssltest.py" target="_blank" rel="noopener">ssltest.py</a> domain就可以了），大家可以看到，cookie甚至是明文帐号密码都直接爆出来了，有的还有代码源码（这个忘记截图了。。。）、SSL私钥（这个笔者没测试出来）等，那么影响有多大呢？看下wooyun的漏洞提交列表：</p>
+<p>再给个来自zoomeye（<a href="http://www.zoomeye.org/" target="_blank" rel="noopener">ZoomEye - The Cyberspace Search Engine</a>）的统计数据：</p>
+<blockquote>
+<p>全国443端口：1601250，有33303个受本次OpenSSL漏洞影响</p>
+</blockquote>
+<p>看了这些，称为&quot;心脏出血&quot;完全不为过。今天估计又有许多运维同学可忙的了。具体的漏洞分析我也不多说了，大家可以看wooyun上的文章（<a href="http://drops.wooyun.org/papers/1381" target="_blank" rel="noopener">关于OpenSSL“心脏出血”漏洞的分析</a>）</p>
+<h3 id="安全防范"><a class="markdownIt-Anchor" href="#安全防范"></a> 安全防范</h3>
+<p>说了这么多，可能有些同学觉得都不要去访问那些是https的网站了，其实也大可不必，官方其实已经放出补丁了，修复方法：</p>
+<blockquote>
+<p>升级到最新版本OpenSSL 1.0.1g 无法立即升级的用户可以以-DOPENSSL_NO_HEARTBEATS开关重新编译OpenSSL 1.0.2-beta版本的漏洞将在beta2版本修复</p>
+</blockquote>
+<p>对于个人用户的话，大家不用太担心，虽然说影响有点大，不过问题主要是出在服务商，而且像那些大网站，比如微信、淘宝等都已经修复了，实在不放心，大家可以这几天暂时不要访问使用了SSL协议的网站进行登陆等操作，特别是网银等网站。另外，提供个在线检测的工具给大家：<a href="http://filippo.io/Heartbleed/" target="_blank" rel="noopener">Test your server for Heartbleed (CVE-2014-0160)</a>与我们团队弄的一个工具<a href="http://www.scanv.com/lab" target="_blank" rel="noopener">实验室 - SCANV</a>，大家也可以访问前进行下检测。</p>
+<p><img src="/images/post/openssl-vulnerabilities/f58ce125ac65ecd65358b0e727174b29_hd.jpg" alt></p>
+<p><img src="/images/post/openssl-vulnerabilities/069d7a9a8c5fad5522ad9d0793d12549_hd.jpg" alt></p>
+<p>补几个最新数据（来自<a href="http://weibo.com/u/3987998963" target="_blank" rel="noopener">zoomeye</a>）：</p>
+<blockquote>
+<p>ZoomEye团队，对全球开放443端口的 35348677 个主机，进行全方位的深度探测，存在漏洞的主机高达 714828 个</p>
+</blockquote>
+<p><img src="/images/post/openssl-vulnerabilities/78cb653b8c7f7095321b79ceae25fe40_hd.jpg" alt></p>
+<p><img src="/images/post/openssl-vulnerabilities/503b5e0fba0f0d9ee10343eb438ec725_hd.jpg" alt></p>
+<p><a href="http://www.zoomeye.org/lab/openssl" target="_blank" rel="noopener">OpenSSL Heartbleed Worldwide Vulnerable Distribution</a></p>
+<h3 id="结语"><a class="markdownIt-Anchor" href="#结语"></a> 结语</h3>
+<p>剩下的就不多说了，首先给那些连夜处理的运维和安全工作人员道声辛苦了。现在大家对安全越来越重视，这是好事，剩下的就是大家上网多小心些！</p>
+<p><img src="/images/post/openssl-vulnerabilities/ddc19058055dd87902be8818d4b88170_hd.jpg" alt></p>
+
+    </div>
+
+  </article>
+  <div class="toc-container">
+    
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#openssl与ssl安全协议"><span class="toc-text"> OpenSSL与SSL安全协议</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#心脏出血的openssl"><span class="toc-text"> 心脏出血的OpenSSL</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安全防范"><span class="toc-text"> 安全防范</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#结语"><span class="toc-text"> 结语</span></a></li></ol>
+  </div>
+
+
+  </div>
+</div>
+<div class="copyright">
+    <span>本作品采用</span>
+    <a href="https://creativecommons.org/licenses/by/4.0/">知识共享署名 4.0 国际许可协议</a>
+    <span>进行许可。 转载时请注明原文链接。</span>
+</div>
+
+
+  
+    <div class="post-nav">
+      <div class="post-nav-item post-nav-next">
+        
+          <span>〈 </span>
+          <a href="/with-the-efforts/" rel="next" title="牢骚与努力">
+          牢骚与努力
+          </a>
+        
+      </div>
+  
+      <div class="post-nav-item post-nav-prev">
+          
+          <a href="/openssl-follow-up/" rel="prev" title="OpenSSL后续关注与科普">
+            OpenSSL后续关注与科普
+          </a>
+          <span>〉</span>
+        
+      </div>
+    </div>
+  
+
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <div id="gitalk-container"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script type="text/javascript">
+        var gitalk = new Gitalk({
+            clientID: 'fa567664f6bdb5976298',
+            clientSecret: 'ee096f560d4360445220f5063af3bf6e4a8ba8e5',
+            id: window.location.pathname,
+            repo: 'fooying_blog',
+            owner: 'fooying',
+            admin: 'fooying'
+        })
+        gitalk.render('gitalk-container')
+    </script>
+
+
+
+    </div>
+
+    
+
+  </div>
+  <footer class="footer text-center">
+    <div id="bottom-inner">
+        <a class="bottom-item" href="https://github.com/fooying" target="_blank">GitHub</a> |
+        <a class="bottom-item" href="/links">友情链接</a> |
+        <a class="bottom-item" href="https://hexo.io" target="_blank">Powered by hexo</a> |
+        <a class="bottom-item" href="https://github.com/fooying/hexo-theme-xoxo-plus" target="_blank">Theme xoxo-plus</a> |
+        <a class="bottom-item" href="/atom.xml">订阅</a>
+    </div>
+</footer>
+
+  
+
+<script>
+  (function(window, document, undefined) {
+
+    var timer = null;
+
+    function returnTop() {
+      cancelAnimationFrame(timer);
+      timer = requestAnimationFrame(function fn() {
+        var oTop = document.body.scrollTop || document.documentElement.scrollTop;
+        if (oTop > 0) {
+          document.body.scrollTop = document.documentElement.scrollTop = oTop - 50;
+          timer = requestAnimationFrame(fn);
+        } else {
+          cancelAnimationFrame(timer);
+        }
+      });
+    }
+
+    var hearts = [];
+    window.requestAnimationFrame = (function() {
+      return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function(callback) {
+          setTimeout(callback, 1000 / 60);
+        }
+    })();
+    init();
+
+    function init() {
+      css(".heart{z-index:9999;width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: '';width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: absolute;}.heart:after{top: -5px;}.heart:before{left: -5px;}");
+      attachEvent();
+      gameloop();
+      addMenuEvent();
+    }
+
+    function gameloop() {
+      for (var i = 0; i < hearts.length; i++) {
+        if (hearts[i].alpha <= 0) {
+          document.body.removeChild(hearts[i].el);
+          hearts.splice(i, 1);
+          continue;
+        }
+        hearts[i].y--;
+        hearts[i].scale += 0.004;
+        hearts[i].alpha -= 0.013;
+        hearts[i].el.style.cssText = "left:" + hearts[i].x + "px;top:" + hearts[i].y + "px;opacity:" + hearts[i].alpha + ";transform:scale(" + hearts[i].scale + "," + hearts[i].scale + ") rotate(45deg);background:" + hearts[i].color;
+      }
+      requestAnimationFrame(gameloop);
+    }
+
+    /**
+     * 给logo设置点击事件
+     * 
+     * - 回到顶部
+     * - 出现爱心
+     */
+    function attachEvent() {
+      var old = typeof window.onclick === "function" && window.onclick;
+      var logo = document.getElementById("logo");
+      if (logo) {
+        logo.onclick = function(event) {
+          returnTop();
+          old && old();
+          createHeart(event);
+        }
+      }
+      
+    }
+
+    function createHeart(event) {
+      var d = document.createElement("div");
+      d.className = "heart";
+      hearts.push({
+        el: d,
+        x: event.clientX - 5,
+        y: event.clientY - 5,
+        scale: 1,
+        alpha: 1,
+        color: randomColor()
+      });
+      document.body.appendChild(d);
+    }
+
+    function css(css) {
+      var style = document.createElement("style");
+      style.type = "text/css";
+      try {
+        style.appendChild(document.createTextNode(css));
+      } catch (ex) {
+        style.styleSheet.cssText = css;
+      }
+      document.getElementsByTagName('head')[0].appendChild(style);
+    }
+
+    function randomColor() {
+      // return "rgb(" + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + ")";
+      return "#F44336";
+    }
+
+    function addMenuEvent() {
+      var menu = document.getElementById('menu-main-post');
+      if (menu) {
+        var toc = document.getElementById('toc');
+        if (toc) {
+          menu.onclick = function() {
+            if (toc) {
+              if (toc.style.display == 'block') {
+                toc.style.display = 'none';
+              } else {
+                toc.style.display = 'block';
+              }
+            }
+          };
+        } else {
+          menu.style.display = 'none';
+        }
+      }
+    }
+
+  })(window, document);
+</script>
+
+  
+  <script>
+    var _hmt = _hmt || [];
+    (function () {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?f290e5fbd596aedbb751f38a7d377f48";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  
+<script>
+  (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+          bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      }
+      else {
+          bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+  })();
+</script>
+
+
+</body>
+</html>

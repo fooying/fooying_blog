@@ -1,0 +1,410 @@
+
+<!DOCTYPE html>
+<html lang="">
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#202020">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+  
+  
+    <meta name="keywords" content="Universal XSS,UXSS,通用跨站脚本攻击,">
+  
+
+  
+    <meta name="description" content="Fooying&#39;s Blog">
+  
+  
+  
+  <link rel="icon" type="image/x-icon" href="/images/footer-logo.png">
+  
+  <title>通用跨站脚本攻击(UXSS) [ Fooying ]</title>
+  
+    <!-- stylesheets list from config.yml -->
+    
+      <link rel="stylesheet" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css">
+    
+      <link rel="stylesheet" href="/css/xoxo.css">
+    
+  
+</head>
+
+
+<body>
+  <div class="nav-container">
+    <nav class="home-menu pure-menu pure-menu-horizontal">
+  <a class="pure-menu-heading" href="/">
+    
+    <span class="title" style="text-transform:none">Fooying</span>
+  </a>
+
+  <ul class="pure-menu-list clearfix">
+      
+          
+            
+              <li class="pure-menu-item"><a href="/" class="pure-menu-link">首页</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
+            
+              <a href="#" id="post" class="pure-menu-link">文章</a>
+              <ul class="pure-menu-children">
+              
+                  
+                    <li class="pure-menu-item"><a href="/categories" style="color:#202020;" class="pure-menu-link">分类</a></li>
+                  
+              
+                  
+                    <li class="pure-menu-item"><a href="/archives" style="color:#202020;" class="pure-menu-link">归档</a></li>
+                  
+              
+                  
+                    <li class="pure-menu-item"><a href="/tags" style="color:#202020;" class="pure-menu-link">标签</a></li>
+                  
+              
+              </ul>
+            </li>
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/paper" class="pure-menu-link">Papers</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/project" class="pure-menu-link">项目</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/activity" class="pure-menu-link">动态</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/search" class="pure-menu-link">搜索</a></li>
+            
+          
+      
+  </ul>
+   
+</nav>
+
+  </div>
+
+  <div class="container" id="content-outer">
+    <div class="inner" id="content-inner">
+      <div class="post-container">
+  <article class="post" id="post">
+    <header class="post-header text-center">
+      <h1 class="title">
+        通用跨站脚本攻击(UXSS)
+      </h1>
+      <span>
+        
+        <time class="time" datetime="2014-09-02T02:54:00.000Z">
+        2014-09-02
+      </time>
+        
+      </span>
+      <span class="slash">/</span>
+      <span class="post-meta">
+      <span class="post-tags">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/UXSS/">UXSS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Universal-XSS/">Universal XSS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/通用跨站脚本攻击/">通用跨站脚本攻击</a></li></ul>
+      </span>
+    </span>
+      <span class="slash">/</span>
+      <span class="read">
+      <span id="busuanzi_value_page_pv"></span> 点击
+    </span>
+      <span class="slash">/</span>
+      <span class="read">阅读耗时 13 分钟</span>
+    </header>
+
+    <div class="post-content">
+      <p>有同学问，用百度搜索了下，发现国内相关介绍基本是没有，就写篇文章来介绍下。不过看到有现成的介绍，就拿来翻译修改下。 本文的内容主要翻译来自该文章，把一些没必要的话给删了，做了一些整理修改，然后补充一些案例。 <a href="http://www.acunetix.com/blog/web-security-zone/universal-cross-site-scripting-uxss/" target="_blank" rel="noopener">http://www.acunetix.com/blog/web-security-zone/universal-cross-site-scripting-uxss/</a></p>
+<h3 id="什么是uxss"><a class="markdownIt-Anchor" href="#什么是uxss"></a> 什么是UXSS？</h3>
+<p>大家都知道有反射型XSS、存储型XSS、DomXSS，还有之前wooyun知识库上由gainover翻译的mXSS，也就是突变XSS（文章地址http://drops.wooyun.org/tips/956）。</p>
+<p>可能比较少同学了解何谓UXSS，UXSS全称Universal Cross-Site Scripting，翻译过来就是通用型XSS，也叫Universal  XSS。</p>
+<p>那么，UXSS由于前面提到的几种XSS有什么区别？</p>
+<a id="more"></a>
+<p>常见的XSS攻击的是因为客户端或服务端的代码开发不严谨等问题而存在漏洞的目标网站或者应用程序。这些攻击的先决条件是页面存在漏洞，而它们的影响往往也围绕着漏洞页面本身的用户会话。换句话说，因为浏览器的安全功能的影响，XSS攻击只能读取受感染的会话，而无法读取其他的会话信息，也就是同源策略的影响。<br>
+UXSS保留了基本XSS的特点，利用漏洞，执行恶意代码，但是有一个重要的区别：<br>
+<strong>不同于常见的XSS，UXSS是一种利用浏览器或者浏览器扩展漏洞来制造产生XSS的条件并执行代码的一种攻击类型。</strong></p>
+<p>讲了这么多大家应该明白，通俗的说，就是原来我们进行XSS攻击等都是针对Web应用本身，是因为Web应用本身存在漏洞才能被我们利用攻击；而UXSS不同的是通过浏览器或者浏览器扩展的漏洞来&quot;制作XSS漏洞&quot;，然后剩下的我们就可以像普通XSS那样利用攻击了。</p>
+<h3 id="影响"><a class="markdownIt-Anchor" href="#影响"></a> 影响</h3>
+<p>那么UXSS与通常的XSS有什么影响的区别？前面我们提到，因为同源策略，即使一个漏洞页面存在XSS，我们可以访问它的用户会话信息等，但是无法访问其他域的相关的会话信息，而因为UXSS是利用浏览器本身或者浏览器扩展程序的漏洞，所以对于攻击发起时浏览器打开或缓存的所有页面（即使不同域的情况）的会话信息都可以进行访问。简单的说，UXSS不需要一个漏洞页面来触发攻击，它可以渗透入安全没有问题的页面，从而创造一个漏洞，而该页面原先是安全无漏洞的（比如下面的例子）。</p>
+<p>Web浏览器是正在使用的最流行的应用程序之一、。浏览器可能有漏洞被发现，有一整个的漏洞纰漏过程，当一个新漏洞被发现的时候，不管是把漏洞藏起来自己利用还是说报告给官方，而这个过程中都有一段不小的时间，这一过程中漏洞都可能被利用于UXSS。</p>
+<p>不仅是浏览器本身的漏洞，现在主流浏览器都支持扩展程序的安装，而众多的浏览器扩展程序可能导致带来更多的漏洞和安全问题。</p>
+<p>因为UXSS攻击不需要页面本身存在漏洞，同时可能访问其他安全无漏洞页面，使得UXSS成为XSS里危险和最具破坏性的攻击类型之一。</p>
+<h3 id="uxss案例"><a class="markdownIt-Anchor" href="#uxss案例"></a> UXSS案例</h3>
+<h4 id="1-ie6或火狐浏览器扩展程序adobe-acrobat的漏洞"><a class="markdownIt-Anchor" href="#1-ie6或火狐浏览器扩展程序adobe-acrobat的漏洞"></a> 1、IE6或火狐浏览器扩展程序Adobe Acrobat的漏洞</h4>
+<p>这是一个比较老的漏洞，但这是一个比较经典的例子。当使用扩展程序时导致错误，使得代码可以执行。这是一个在pdf阅读器中的bug，允许攻击者在客户端执行脚本。构造恶意页面，写入恶意脚本，并利用扩展程序打开pdf时运行代码。 Stefano Di Paola 和 Giorgio Fedon在一个在Mozilla Firefox浏览器Adobe Reader的插件中可利用的缺陷中第一个记录和描述的UXSS Adobe插件通过一系列参数允许从外部数据源取数据进行文档表单的填充，如果没有正确的执行，将允许跨站脚本攻击。原pdf: <a href="http://events.ccc.de/congress/2006/Fahrplan/attachments/1158-Subverting_Ajax.pdf" target="_blank" rel="noopener">http://events.ccc.de/congress/2006/Fahrplan/attachments/1158-Subverting_Ajax.pdf</a>或者详见<a href="http://jeremiahgrossman.blogspot.com/2007/01/what-you-need-to-know-about-uxss-in.html" target="_blank" rel="noopener">http://jeremiahgrossman.blogspot.com/2007/01/what-you-need-    to-know-about-uxss-in.html</a></p>
+<h4 id="2-ie8跨站脚本过滤器缺陷"><a class="markdownIt-Anchor" href="#2-ie8跨站脚本过滤器缺陷"></a> 2、IE8跨站脚本过滤器缺陷</h4>
+<p>David Lindsay 和Eduardo Vela Nava已经在2010年的BlackHat Europe展示了这个漏洞的UXSS利用。 IE8中内置了XSS过滤器，用于检测反射XSS,并采取纠正措施：在页面渲染之前更改响应内容。 在这种特殊情况下，等号将会被过滤器去除，但是通过精心构造的XSS字符串在特定的地方，这个逻辑会导致浏览器创建XSS条件。微软的响应是改变了XSS过滤器去除的字符。具体可以查看pdf: <a href="http://p42.us/ie8xss/Abusing_IE8s_XSS_Filters.pdf" target="_blank" rel="noopener">http://p42.us/ie8xss/Abusing_IE8s_XSS_Filters.pdf</a></p>
+<h4 id="3-flash-player-uxss-漏洞-cve-2011-2107"><a class="markdownIt-Anchor" href="#3-flash-player-uxss-漏洞-cve-2011-2107"></a> 3、Flash Player UXSS 漏洞 - CVE-2011-2107</h4>
+<p>一个在2011年Flash Player插件（当时的所有版本）中的缺陷使得攻击者通过使用构造的.swf文件，可以访问Gmail设置和添加转发地址。因此攻击者可以收到任意一个被攻破的Gmail帐号的所有邮件副本（发送的时候都会抄送份）。Adobe承认了该漏洞，详见<a href="http://www.adobe.com/support/security/bulletins/apsb11-13.html" target="_blank" rel="noopener">http://www.adobe.com/support/security/bulletins/apsb11-13.html</a></p>
+<h4 id="4-安卓版chrome浏览器漏洞"><a class="markdownIt-Anchor" href="#4-安卓版chrome浏览器漏洞"></a> 4、安卓版Chrome浏览器漏洞</h4>
+<p>移动设备也不例外，而且可以成为XSS攻击的目标。Chrome安卓版存在一个漏洞，允许攻击者将恶意代码注入到Chrome通过Intent对象加载的任意的web页面。具体详见<a href="https://code.google.com/p/chromium/issues/detail?id=144813" target="_blank" rel="noopener">https://code.google.com/p/chromium/issues/detail?id=    144813</a></p>
+<h4 id="5-其他的例子"><a class="markdownIt-Anchor" href="#5-其他的例子"></a> 5、其他的例子</h4>
+<ul>
+<li><a href="http://insert-script.blogspot.com/2013/08/uxss-internet-explorer-euc-jp-parsing.html" target="_blank" rel="noopener">http://insert-script.blogspot.com/2013/08/uxss-internet-explorer-euc-jp-parsing.html</a></li>
+<li><a href="http://www.rapid7.com/db/modules/auxiliary/gather/apple_safari_webarchive_uxss" target="_blank" rel="noopener">http://www.rapid7.com/db/modules/auxiliary/gather/apple_safari_webarchive_uxss</a></li>
+<li><a href="http://www.wooyun.org/bugs/wooyun-2014-074655" target="_blank" rel="noopener">http://www.wooyun.org/bugs/wooyun-2014-074655</a></li>
+<li><a href="http://www.cnvd.org.cn/flaw/show/CNVD-2012-5462" target="_blank" rel="noopener">http://www.cnvd.org.cn/flaw/show/CNVD-2012-5462</a></li>
+<li><a href="http://www.wooyun.org/bugs/wooyun-2014-071915" target="_blank" rel="noopener">http://www.wooyun.org/bugs/wooyun-2014-071915</a></li>
+<li><a href="http://cxsecurity.com/issue/WLB-2012100086" target="_blank" rel="noopener">http://cxsecurity.com/issue/WLB-2012100086</a></li>
+<li><a href="http://www.maths.usyd.edu.au/u/psz/ff-utf7-uxss.html" target="_blank" rel="noopener">http://www.maths.usyd.edu.au/u/psz/ff-utf7-uxss.html</a></li>
+</ul>
+<p>更多的大家自己搜索把</p>
+<h4 id="典例分析"><a class="markdownIt-Anchor" href="#典例分析"></a> 典例分析</h4>
+<p>本来整理这篇文章的时候还不知道大牛发了一个UXSS，写完上wooyun正好就看到<a href="http://zone.wooyun.org/user/mramydnei" target="_blank" rel="noopener">mramydnei</a>大牛发了《安卓浏览器SOP绕过漏洞（UXSS）》的漏洞（详见<a href="http://zone.wooyun.org/content/14945" target="_blank" rel="noopener">http://zone.wooyun.org/co    ntent/14945</a>），就补充到文章里。 简要分析下，这个漏洞是构造一个页面，页面嵌入iframe，然后通过<code>u0000</code>进行浏览器的sop绕过进行XSS。</p>
+<p>更多细节可以看大牛的博客以及参考文章<a href="http://parsec.me/625.html" target="_blank" rel="noopener">http://parsec.me/625.html</a>、<a href="http://parsec.me/660.html" target="_blank" rel="noopener">http://parsec.me/660.html</a>。</p>
+<h4 id="防范"><a class="markdownIt-Anchor" href="#防范"></a> 防范</h4>
+<p>防范UXSS的经验法则是打好所有的补丁，保持最新版本。 这将确保您的环境中使用的浏览器版本以及您所需要的扩展程序，是不可能通过UXSS进行漏洞利用的。 而然，这是否意味着你就高枕无忧呢？不是这样的，运行最新的版本也不能保证是完全安全的。当一个漏洞被发现、提交、确认、修复已经发布补丁，中间是有时间差的，而在这段时间内，将可能收到UXSS攻击。</p>
+<p>另外，更多的XSS相关知识可以访问 <a href="https://xssing.org" target="_blank" rel="noopener">https://xssing.org</a>，目前在添加资料中</p>
+
+    </div>
+
+  </article>
+  <div class="toc-container">
+    
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是uxss"><span class="toc-text"> 什么是UXSS？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#影响"><span class="toc-text"> 影响</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#uxss案例"><span class="toc-text"> UXSS案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-ie6或火狐浏览器扩展程序adobe-acrobat的漏洞"><span class="toc-text"> 1、IE6或火狐浏览器扩展程序Adobe Acrobat的漏洞</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-ie8跨站脚本过滤器缺陷"><span class="toc-text"> 2、IE8跨站脚本过滤器缺陷</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-flash-player-uxss-漏洞-cve-2011-2107"><span class="toc-text"> 3、Flash Player UXSS 漏洞 - CVE-2011-2107</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-安卓版chrome浏览器漏洞"><span class="toc-text"> 4、安卓版Chrome浏览器漏洞</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-其他的例子"><span class="toc-text"> 5、其他的例子</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#典例分析"><span class="toc-text"> 典例分析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#防范"><span class="toc-text"> 防范</span></a></li></ol></li></ol>
+  </div>
+
+
+  </div>
+</div>
+<div class="copyright">
+    <span>本作品采用</span>
+    <a href="https://creativecommons.org/licenses/by/4.0/">知识共享署名 4.0 国际许可协议</a>
+    <span>进行许可。 转载时请注明原文链接。</span>
+</div>
+
+
+  
+    <div class="post-nav">
+      <div class="post-nav-item post-nav-next">
+        
+          <span>〈 </span>
+          <a href="/short-xss-domain-reg/" rel="next" title="XSS利器,短域名注册">
+          XSS利器,短域名注册
+          </a>
+        
+      </div>
+  
+      <div class="post-nav-item post-nav-prev">
+          
+          <a href="/some-mobile-security-things-recently/" rel="prev" title="最近移动安全三两事">
+            最近移动安全三两事
+          </a>
+          <span>〉</span>
+        
+      </div>
+    </div>
+  
+
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <div id="gitalk-container"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script type="text/javascript">
+        var gitalk = new Gitalk({
+            clientID: 'fa567664f6bdb5976298',
+            clientSecret: 'ee096f560d4360445220f5063af3bf6e4a8ba8e5',
+            id: window.location.pathname,
+            repo: 'fooying_blog',
+            owner: 'fooying',
+            admin: 'fooying'
+        })
+        gitalk.render('gitalk-container')
+    </script>
+
+
+
+    </div>
+
+    
+
+  </div>
+  <footer class="footer text-center">
+    <div id="bottom-inner">
+        <a class="bottom-item" href="https://github.com/fooying" target="_blank">GitHub</a> |
+        <a class="bottom-item" href="/links">友情链接</a> |
+        <a class="bottom-item" href="https://hexo.io" target="_blank">Powered by hexo</a> |
+        <a class="bottom-item" href="https://github.com/fooying/hexo-theme-xoxo-plus" target="_blank">Theme xoxo-plus</a> |
+        <a class="bottom-item" href="/atom.xml">订阅</a>
+    </div>
+</footer>
+
+  
+
+<script>
+  (function(window, document, undefined) {
+
+    var timer = null;
+
+    function returnTop() {
+      cancelAnimationFrame(timer);
+      timer = requestAnimationFrame(function fn() {
+        var oTop = document.body.scrollTop || document.documentElement.scrollTop;
+        if (oTop > 0) {
+          document.body.scrollTop = document.documentElement.scrollTop = oTop - 50;
+          timer = requestAnimationFrame(fn);
+        } else {
+          cancelAnimationFrame(timer);
+        }
+      });
+    }
+
+    var hearts = [];
+    window.requestAnimationFrame = (function() {
+      return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function(callback) {
+          setTimeout(callback, 1000 / 60);
+        }
+    })();
+    init();
+
+    function init() {
+      css(".heart{z-index:9999;width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: '';width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: absolute;}.heart:after{top: -5px;}.heart:before{left: -5px;}");
+      attachEvent();
+      gameloop();
+      addMenuEvent();
+    }
+
+    function gameloop() {
+      for (var i = 0; i < hearts.length; i++) {
+        if (hearts[i].alpha <= 0) {
+          document.body.removeChild(hearts[i].el);
+          hearts.splice(i, 1);
+          continue;
+        }
+        hearts[i].y--;
+        hearts[i].scale += 0.004;
+        hearts[i].alpha -= 0.013;
+        hearts[i].el.style.cssText = "left:" + hearts[i].x + "px;top:" + hearts[i].y + "px;opacity:" + hearts[i].alpha + ";transform:scale(" + hearts[i].scale + "," + hearts[i].scale + ") rotate(45deg);background:" + hearts[i].color;
+      }
+      requestAnimationFrame(gameloop);
+    }
+
+    /**
+     * 给logo设置点击事件
+     * 
+     * - 回到顶部
+     * - 出现爱心
+     */
+    function attachEvent() {
+      var old = typeof window.onclick === "function" && window.onclick;
+      var logo = document.getElementById("logo");
+      if (logo) {
+        logo.onclick = function(event) {
+          returnTop();
+          old && old();
+          createHeart(event);
+        }
+      }
+      
+    }
+
+    function createHeart(event) {
+      var d = document.createElement("div");
+      d.className = "heart";
+      hearts.push({
+        el: d,
+        x: event.clientX - 5,
+        y: event.clientY - 5,
+        scale: 1,
+        alpha: 1,
+        color: randomColor()
+      });
+      document.body.appendChild(d);
+    }
+
+    function css(css) {
+      var style = document.createElement("style");
+      style.type = "text/css";
+      try {
+        style.appendChild(document.createTextNode(css));
+      } catch (ex) {
+        style.styleSheet.cssText = css;
+      }
+      document.getElementsByTagName('head')[0].appendChild(style);
+    }
+
+    function randomColor() {
+      // return "rgb(" + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + ")";
+      return "#F44336";
+    }
+
+    function addMenuEvent() {
+      var menu = document.getElementById('menu-main-post');
+      if (menu) {
+        var toc = document.getElementById('toc');
+        if (toc) {
+          menu.onclick = function() {
+            if (toc) {
+              if (toc.style.display == 'block') {
+                toc.style.display = 'none';
+              } else {
+                toc.style.display = 'block';
+              }
+            }
+          };
+        } else {
+          menu.style.display = 'none';
+        }
+      }
+    }
+
+  })(window, document);
+</script>
+
+  
+  <script>
+    var _hmt = _hmt || [];
+    (function () {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?f290e5fbd596aedbb751f38a7d377f48";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  
+<script>
+  (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+          bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      }
+      else {
+          bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+  })();
+</script>
+
+
+</body>
+</html>

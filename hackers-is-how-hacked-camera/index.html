@@ -1,0 +1,402 @@
+
+<!DOCTYPE html>
+<html lang="">
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#202020">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+  
+  
+    <meta name="keywords" content="zoomeye,家庭监控器存在安全隐患,摄像头,网络摄像头,网络设备,黑掉摄像头,">
+  
+
+  
+    <meta name="description" content="Fooying&#39;s Blog">
+  
+  
+  
+  <link rel="icon" type="image/x-icon" href="/images/footer-logo.png">
+  
+  <title>黑客们是怎么黑掉摄像头的 [ Fooying ]</title>
+  
+    <!-- stylesheets list from config.yml -->
+    
+      <link rel="stylesheet" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css">
+    
+      <link rel="stylesheet" href="/css/xoxo.css">
+    
+  
+</head>
+
+
+<body>
+  <div class="nav-container">
+    <nav class="home-menu pure-menu pure-menu-horizontal">
+  <a class="pure-menu-heading" href="/">
+    
+    <span class="title" style="text-transform:none">Fooying</span>
+  </a>
+
+  <ul class="pure-menu-list clearfix">
+      
+          
+            
+              <li class="pure-menu-item"><a href="/" class="pure-menu-link">首页</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
+            
+              <a href="#" id="post" class="pure-menu-link">文章</a>
+              <ul class="pure-menu-children">
+              
+                  
+                    <li class="pure-menu-item"><a href="/categories" style="color:#202020;" class="pure-menu-link">分类</a></li>
+                  
+              
+                  
+                    <li class="pure-menu-item"><a href="/archives" style="color:#202020;" class="pure-menu-link">归档</a></li>
+                  
+              
+                  
+                    <li class="pure-menu-item"><a href="/tags" style="color:#202020;" class="pure-menu-link">标签</a></li>
+                  
+              
+              </ul>
+            </li>
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/paper" class="pure-menu-link">Papers</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/project" class="pure-menu-link">项目</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/activity" class="pure-menu-link">动态</a></li>
+            
+          
+      
+          
+            
+              <li class="pure-menu-item"><a href="/search" class="pure-menu-link">搜索</a></li>
+            
+          
+      
+  </ul>
+   
+</nav>
+
+  </div>
+
+  <div class="container" id="content-outer">
+    <div class="inner" id="content-inner">
+      <div class="post-container">
+  <article class="post" id="post">
+    <header class="post-header text-center">
+      <h1 class="title">
+        黑客们是怎么黑掉摄像头的
+      </h1>
+      <span>
+        
+        <time class="time" datetime="2014-03-27T16:12:12.000Z">
+        2014-03-28
+      </time>
+        
+      </span>
+      <span class="slash">/</span>
+      <span class="post-meta">
+      <span class="post-tags">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/zoomeye/">zoomeye</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/家庭监控器存在安全隐患/">家庭监控器存在安全隐患</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/摄像头/">摄像头</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/网络摄像头/">网络摄像头</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/网络设备/">网络设备</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/黑掉摄像头/">黑掉摄像头</a></li></ul>
+      </span>
+    </span>
+      <span class="slash">/</span>
+      <span class="read">
+      <span id="busuanzi_value_page_pv"></span> 点击
+    </span>
+      <span class="slash">/</span>
+      <span class="read">阅读耗时 10 分钟</span>
+    </header>
+
+    <div class="post-content">
+      <h3 id="引言"><a class="markdownIt-Anchor" href="#引言"></a> 引言</h3>
+<p>今天央视联合知道创宇做了一个摄像头安全的专题报道（<a href="http://t.cn/8scgmQV" target="_blank" rel="noopener">[视频]家庭监控器存安全隐患</a>）。当摄像头已经不再安全的时候，我们该怎么办？你还敢用摄像头吗？今天笔者带大家去了解下摄像头是怎么被黑掉的。</p>
+<a id="more"></a>
+<h3 id="怎么找到那些摄像头的"><a class="markdownIt-Anchor" href="#怎么找到那些摄像头的"></a> 怎么找到那些摄像头的</h3>
+<p>现在的摄像头一般都很智能，提供有管理的web界面，通过web界面可以很方便远程在电脑、手机上直接访问管理界面，可以实时查看摄像头的监控界面。 在讲怎么找到摄像头前，我先来介绍下zoomeye。 借用知道创宇周智小伙伴的话：</p>
+<blockquote>
+<p>得益于科技的高速发展，现在接入互联网的设备五花八门。除了PC和服务器，还有路由器、物联网家电、平板电脑、手机等，甚至还有监控探头、工业控制中的SCADA系统等比较敏感的设备。这些设备被视作节点，共同组成了我们所处的的网络空间（Cyberspace）。 ZoomEye 正是一个检索网络空间节点的搜索引擎。通过后端的分布式爬虫引擎（无论谁家的搜索引擎都是这样）对全球节点的分析，对每个节点的所拥有的特征进行判别，从而获得设备类型、固件版本、分布地点、开放端口服务等信息。</p>
+</blockquote>
+<p>而网络摄像头，也是网络空间中的一个节点。通过不同网络摄像头的特征进行搜索，比如通过zoomeye（<a href="http://www.zoomeye.org/" target="_blank" rel="noopener">ZoomEye - The Cyberspace Search Engine</a>），就可以找到这些连接到网络空间的摄像头。再或者通过搜索引擎都是都可以找到这些设备的（比如这篇文章：<a href="http://wenku.baidu.com/link?url=WPM-ItRpTclkn4orgX18BRLJ_azwPaqniLoTmAKl17tFd5ar-tOEfTA1dj5CV5wBkjZ5UPhPfeEQfMfrgmme3Ik1w2DdBFKCpw7JGiIdaAK" target="_blank" rel="noopener">利用google搜索网络摄像头</a>）。因为这些网络设备是接入互联网的，这就导致了爬虫可以爬到他的一些管理页面等。</p>
+<p><img src="/images/post/hackers-is-how-hacked-camera/694321dcc5567b756f23dbdf94ce7587_hd.jpg" alt></p>
+<p>再或者，如果已知摄像的ip，那就更不用说了。上图就是笔者通过某一型号的的摄像头的特征码搜索到的结果。 当然，通过一些扫描器，扫描C段，也是可以扫到这些设备的。通过http banner就可以看到是一个web服务，然后就可以直接访问。 只要是存在web服务的管理界面，连接到互联网的设备，就有可能被黑客的工具扫到。</p>
+<h3 id="黑掉摄像头"><a class="markdownIt-Anchor" href="#黑掉摄像头"></a> 黑掉摄像头</h3>
+<p>就像视频说的那个帖子，发帖人说：</p>
+<blockquote>
+<p>别问我是怎么黑掉摄像头的，因为实在太简单。在一些ip段随便扫一扫，找到装网络摄像头有web登录界面的，简单破解下口令基本能黑掉一大半。</p>
+</blockquote>
+<p>就是这样的，别觉得黑掉摄像头有多难。通过扫描器，扫描ip段，找到联网的摄像头的web登陆界面，破解口令就进去了。经过笔者测试，不要说破解口令，在笔者测试的很多摄像头的web管理端，直接可以查看摄像头的型号，然后直接通过默认的帐号密码就可以直接登陆进去了，根本连密码都没改，所以说只要你找得到web登陆界面的地址，登陆进去查看实时画面实在是太简单了。 如图是笔者找到的一款连接在互联网的Hikvision摄像头的web管理界面，笔者直接输入默认密码admin/12345就直接登陆进去了。</p>
+<p><img src="/images/post/hackers-is-how-hacked-camera/17cfaec7e9de9dbf7738fdebb5f51a69_hd.jpg" alt></p>
+<p>即使如果密码不是默认的，对于黑客来说，也只是稍微费点劲，破解下密码就进去了。 更或者直接利用漏洞可以获得密码，比如视频中来自知道创宇的周阳同学的演示，就是利用摄像头的固件漏洞，直接编写exp（利用代码），然后可以直接获得登陆所需的帐号和密码，甚至可以替换摄像头的画面。具体的技术上的我就不多解释了，有兴趣的同学可以去找blackhat2013的&quot;EXPLOITING SURVEILLANCE CAMERAS&quot;文档。 所以，黑掉摄像头就是这么简单。想想是不是觉得很可怕？</p>
+<p><img src="/images/post/hackers-is-how-hacked-camera/741eb828200b944fca78056fd7e1f3e2_hd.jpg" alt></p>
+<h3 id="网络设备面临安全问题"><a class="markdownIt-Anchor" href="#网络设备面临安全问题"></a> 网络设备面临安全问题</h3>
+<p>不只是网络摄像头，理论上，连入互联网的任何只能设备都存在被黑掉的可能性。 摄像头通过漏洞直接获取帐号密码甚至修改画面是通过漏洞来实现的，而这些安全的分析都是基于固件的。所以，同样的道理也同样的可以用于其他的智能设备。 而这些都是厂商和普通用户应该需要考虑的问题。</p>
+<h3 id="防御网络设备的安全问题"><a class="markdownIt-Anchor" href="#防御网络设备的安全问题"></a> 防御网络设备的安全问题</h3>
+<p>对于设备固件漏洞上的问题，只能希望设备厂商可以加强这方面的建设。而对于我们普通用户，在使用这些设备时应该注意什么问题呢？总不能都不使用了把？</p>
+<ol>
+<li>首先，如果没必要连入互联网的网络设备就不要连入互联网</li>
+<li>登陆设备管理页面的第一件事应该是修改管理的密码，需要保证一定的强度</li>
+<li>在设备厂商更新设备固件的时候，应该第一时间也更新固件，这与系统更新漏洞补丁是一样的道理</li>
+<li>尽量选购知名品牌设备，知名厂商一般会比较关注安全问题，如果发现安全问题，一般能在第一时间响应</li>
+</ol>
+<p>这是一些基本的安全意识的问题的，对于设备本身的一些问题，我们也只能希望厂商可以做好这一块。</p>
+<h3 id="结语"><a class="markdownIt-Anchor" href="#结语"></a> 结语</h3>
+<p>可能看完今天的视频大家都觉得太可怕了，其实我想说的是，希望专题的报道可以引起厂商的重视，也引起大家对隐私安全的重视。</p>
+
+    </div>
+
+  </article>
+  <div class="toc-container">
+    
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#引言"><span class="toc-text"> 引言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#怎么找到那些摄像头的"><span class="toc-text"> 怎么找到那些摄像头的</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#黑掉摄像头"><span class="toc-text"> 黑掉摄像头</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#网络设备面临安全问题"><span class="toc-text"> 网络设备面临安全问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#防御网络设备的安全问题"><span class="toc-text"> 防御网络设备的安全问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#结语"><span class="toc-text"> 结语</span></a></li></ol>
+  </div>
+
+
+  </div>
+</div>
+<div class="copyright">
+    <span>本作品采用</span>
+    <a href="https://creativecommons.org/licenses/by/4.0/">知识共享署名 4.0 国际许可协议</a>
+    <span>进行许可。 转载时请注明原文链接。</span>
+</div>
+
+
+  
+    <div class="post-nav">
+      <div class="post-nav-item post-nav-next">
+        
+          <span>〈 </span>
+          <a href="/hacker-code-404/" rel="next" title="黑客代号：404">
+          黑客代号：404
+          </a>
+        
+      </div>
+  
+      <div class="post-nav-item post-nav-prev">
+          
+          <a href="/you-will-be-a-hacker/" rel="prev" title="你会是黑客吗？">
+            你会是黑客吗？
+          </a>
+          <span>〉</span>
+        
+      </div>
+    </div>
+  
+
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <div id="gitalk-container"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script type="text/javascript">
+        var gitalk = new Gitalk({
+            clientID: 'fa567664f6bdb5976298',
+            clientSecret: 'ee096f560d4360445220f5063af3bf6e4a8ba8e5',
+            id: window.location.pathname,
+            repo: 'fooying_blog',
+            owner: 'fooying',
+            admin: 'fooying'
+        })
+        gitalk.render('gitalk-container')
+    </script>
+
+
+
+    </div>
+
+    
+
+  </div>
+  <footer class="footer text-center">
+    <div id="bottom-inner">
+        <a class="bottom-item" href="https://github.com/fooying" target="_blank">GitHub</a> |
+        <a class="bottom-item" href="/links">友情链接</a> |
+        <a class="bottom-item" href="https://hexo.io" target="_blank">Powered by hexo</a> |
+        <a class="bottom-item" href="https://github.com/fooying/hexo-theme-xoxo-plus" target="_blank">Theme xoxo-plus</a> |
+        <a class="bottom-item" href="/atom.xml">订阅</a>
+    </div>
+</footer>
+
+  
+
+<script>
+  (function(window, document, undefined) {
+
+    var timer = null;
+
+    function returnTop() {
+      cancelAnimationFrame(timer);
+      timer = requestAnimationFrame(function fn() {
+        var oTop = document.body.scrollTop || document.documentElement.scrollTop;
+        if (oTop > 0) {
+          document.body.scrollTop = document.documentElement.scrollTop = oTop - 50;
+          timer = requestAnimationFrame(fn);
+        } else {
+          cancelAnimationFrame(timer);
+        }
+      });
+    }
+
+    var hearts = [];
+    window.requestAnimationFrame = (function() {
+      return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function(callback) {
+          setTimeout(callback, 1000 / 60);
+        }
+    })();
+    init();
+
+    function init() {
+      css(".heart{z-index:9999;width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: '';width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: absolute;}.heart:after{top: -5px;}.heart:before{left: -5px;}");
+      attachEvent();
+      gameloop();
+      addMenuEvent();
+    }
+
+    function gameloop() {
+      for (var i = 0; i < hearts.length; i++) {
+        if (hearts[i].alpha <= 0) {
+          document.body.removeChild(hearts[i].el);
+          hearts.splice(i, 1);
+          continue;
+        }
+        hearts[i].y--;
+        hearts[i].scale += 0.004;
+        hearts[i].alpha -= 0.013;
+        hearts[i].el.style.cssText = "left:" + hearts[i].x + "px;top:" + hearts[i].y + "px;opacity:" + hearts[i].alpha + ";transform:scale(" + hearts[i].scale + "," + hearts[i].scale + ") rotate(45deg);background:" + hearts[i].color;
+      }
+      requestAnimationFrame(gameloop);
+    }
+
+    /**
+     * 给logo设置点击事件
+     * 
+     * - 回到顶部
+     * - 出现爱心
+     */
+    function attachEvent() {
+      var old = typeof window.onclick === "function" && window.onclick;
+      var logo = document.getElementById("logo");
+      if (logo) {
+        logo.onclick = function(event) {
+          returnTop();
+          old && old();
+          createHeart(event);
+        }
+      }
+      
+    }
+
+    function createHeart(event) {
+      var d = document.createElement("div");
+      d.className = "heart";
+      hearts.push({
+        el: d,
+        x: event.clientX - 5,
+        y: event.clientY - 5,
+        scale: 1,
+        alpha: 1,
+        color: randomColor()
+      });
+      document.body.appendChild(d);
+    }
+
+    function css(css) {
+      var style = document.createElement("style");
+      style.type = "text/css";
+      try {
+        style.appendChild(document.createTextNode(css));
+      } catch (ex) {
+        style.styleSheet.cssText = css;
+      }
+      document.getElementsByTagName('head')[0].appendChild(style);
+    }
+
+    function randomColor() {
+      // return "rgb(" + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + ")";
+      return "#F44336";
+    }
+
+    function addMenuEvent() {
+      var menu = document.getElementById('menu-main-post');
+      if (menu) {
+        var toc = document.getElementById('toc');
+        if (toc) {
+          menu.onclick = function() {
+            if (toc) {
+              if (toc.style.display == 'block') {
+                toc.style.display = 'none';
+              } else {
+                toc.style.display = 'block';
+              }
+            }
+          };
+        } else {
+          menu.style.display = 'none';
+        }
+      }
+    }
+
+  })(window, document);
+</script>
+
+  
+  <script>
+    var _hmt = _hmt || [];
+    (function () {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?f290e5fbd596aedbb751f38a7d377f48";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  
+<script>
+  (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+          bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      }
+      else {
+          bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+  })();
+</script>
+
+
+</body>
+</html>
